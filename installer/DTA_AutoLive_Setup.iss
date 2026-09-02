@@ -67,8 +67,7 @@ vi.CreateDesktopIcon=Tạo biểu tượng trên màn hình chính (Desktop)
 vi.CreateQuickLaunchIcon=Tạo biểu tượng trên thanh Quick Launch
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "install_drivers"; Description: "Tự động đăng ký Trình điều khiển DTA Virtual Camera & Audio (Khuyên dùng)"; GroupDescription: "Cấu hình phần cứng:"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Dirs]
 ; Khởi tạo sẵn cấu trúc thư mục phân tầng chuyên nghiệp
@@ -91,10 +90,16 @@ Name: "{group}\Gỡ cài đặt {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{group}\Trang chủ DTA Studio"; Filename: "{#MyAppURL}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\assets\logo.ico"
 
-[Run]
-; Tự động cài đặt driver nếu được người dùng chọn
-Filename: "{app}\resources\drivers\install_dta_driver.py"; Parameters: "--silent"; StatusMsg: "{cm:InstallingDrivers}"; Tasks: install_drivers; Flags: runhidden skipifdoesntexist
+[Registry]
+; Đăng ký DTA Virtual Camera vào Windows DirectShow Subsystem
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{860BB310-5D01-11D0-BD3B-00A0C911CE86}\Instance\{{DTA11000-CAM1-4D01-8D3B-00A0C911CE86}"; ValueType: string; ValueName: "FriendlyName"; ValueData: "DTA Camera"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{860BB310-5D01-11D0-BD3B-00A0C911CE86}\Instance\{{DTA11000-CAM1-4D01-8D3B-00A0C911CE86}"; ValueType: string; ValueName: "CLSID"; ValueData: "{{DTA11000-CAM1-4D01-8D3B-00A0C911CE86}"; Flags: uninsdeletekey
 
+; Đăng ký DTA Virtual Audio vào Windows DirectShow Audio Subsystem
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{E0C158E1-DCD4-11D1-A1CE-0080C758D608}\Instance\{{DTA11000-AUD1-4D01-8D3B-00A0C911CE86}"; ValueType: string; ValueName: "FriendlyName"; ValueData: "DTA Audio"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\CLSID\{{E0C158E1-DCD4-11D1-A1CE-0080C758D608}\Instance\{{DTA11000-AUD1-4D01-8D3B-00A0C911CE86}"; ValueType: string; ValueName: "CLSID"; ValueData: "{{DTA11000-AUD1-4D01-8D3B-00A0C911CE86}"; Flags: uninsdeletekey
+
+[Run]
 ; Khởi chạy ứng dụng sau khi cài đặt hoàn tất
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent
 
