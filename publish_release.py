@@ -127,11 +127,17 @@ def main() -> None:
     if latest_yml.exists():
         upload_asset(upload_url, latest_yml, "latest.yml")
 
-    # 2. Upload Setup.exe
-    setup_exe = DIST_DIR / f"DTA AutoLive Setup {version}.exe"
-    if setup_exe.exists():
-        upload_asset(upload_url, setup_exe, f"DTA-AutoLive-Setup-{version}.exe")
-        upload_asset(upload_url, setup_exe, f"DTA AutoLive Setup {version}.exe")
+    # 2. Upload Inno Setup / NSIS Setup.exe
+    setup_candidates = [
+        DIST_DIR / "installer" / f"DTA_AutoLive_Setup_v{version}.exe",
+        DIST_DIR / f"DTA AutoLive Setup {version}.exe",
+        DIST_DIR / f"DTA-AutoLive-Setup-{version}.exe",
+    ]
+    for setup_exe in setup_candidates:
+        if setup_exe.exists():
+            upload_asset(upload_url, setup_exe, f"DTA_AutoLive_Setup_v{version}.exe")
+            upload_asset(upload_url, setup_exe, f"DTA-AutoLive-Setup-{version}.exe")
+            break
 
     # 3. Upload Blockmap
     blockmap = DIST_DIR / f"DTA AutoLive Setup {version}.exe.blockmap"
