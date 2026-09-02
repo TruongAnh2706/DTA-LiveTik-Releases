@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTA AutoLive - Đang khởi động...</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      width: 480px;
+      height: 320px;
+      background: #040408;
+      color: #F8FAFC;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #1E293B;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 229, 255, 0.15);
+      position: relative;
+    }
+    .splash-logo {
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      animation: logoPulse 2s infinite ease-in-out;
+    }
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.4)); }
+      50% { transform: scale(1.06); filter: drop-shadow(0 0 16px rgba(255, 45, 85, 0.6)); }
+    }
+    .splash-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin-top: 12px;
+      background: linear-gradient(135deg, #00E5FF, #FF2D55);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .splash-subtitle {
+      font-size: 11px;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+    .progress-container {
+      width: 300px;
+      height: 6px;
+      background: #0B0C16;
+      border: 1px solid #1E293B;
+      border-radius: 3px;
+      margin-top: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #00E5FF, #FF2D55);
+      border-radius: 3px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .status-text {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: #00E5FF;
+      margin-top: 10px;
+      height: 16px;
+      text-align: center;
+    }
+    .footer-text {
+      position: absolute;
+      bottom: 10px;
+      font-size: 9px;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <img src="assets/logo.png" alt="DTA Studio Logo" class="splash-logo">
+  <div class="splash-title">DTA AutoLive</div>
+  <div class="splash-subtitle">Trung Tâm Điều Khiển Live Stream Chuyên Nghiệp — DTA Studio</div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="status-text" id="statusText">[1/4] Đang khởi động lõi hệ thống DTA AutoLive...</div>
+  <div class="footer-text">Phát triển bởi DTA Studio - Chủ quản: Đức Trường AI (0962.775.506)</div>
+
+  <script src="splash.js"></script>
+</body>
+</html>

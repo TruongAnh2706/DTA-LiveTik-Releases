@@ -1,0 +1,699 @@
+﻿DTA AUTOLIVE
+SYSTEM ARCHITECTURE & TECHNICAL CONTRACTS
+Version 1.1
+
+======================================================================
+1. KIẾN TRÚC TỔNG THỂ
+======================================================================
+
+Launcher / Updater
+        |
+        v
+Desktop Presentation Layer
+        |
+        v
+Application Services
+        |
+        v
+Domain Layer
+        |
+        +--------------------+
+        |                    |
+        v                    v
+Media Infrastructure    Bridge Infrastructure
+        |                    |
+        v                    v
+Virtual Devices         Chrome Extension
+
+UI không được gọi trực tiếp FFmpeg.
+Chrome Extension không được truy cập private source repository.
+Updater không nằm trong Main App process khi thực hiện replace binary.
+
+======================================================================
+2. CÔNG NGHỆ ĐỀ XUẤT
+======================================================================
+
+- Python 3.11.
+- PySide6.
+- FFmpeg/FFprobe.
+- Pydantic v2.
+- asyncio.
+- websockets.
+- structlog hoặc logging JSON.
+- pytest.
+- pytest-asyncio.
+- mypy/pyright.
+- ruff.
+- PyInstaller hoặc Nuitka sau benchmark.
+- Windows Credential Manager/DPAPI.
+- GitHub Actions cho build/release.
+
+======================================================================
+3. CẤU TRÚC REPOSITORY PRIVATE
+======================================================================
+
+dta-autolive/
+  pyproject.toml
+  README.md
+  AGENTS.md
+  .env.example
+  docs/
+    product/
+    srs/
+    architecture/
+    roadmap/
+    adr/
+    ai_tasks/
+  src/
+    dta_autolive/
+      launcher/
+      updater/
+      presentation/
+      application/
+      domain/
+      infrastructure/
+      extension_contracts/
+      schemas/
+      diagnostics/
+  extension/
+    manifest.json
+    src/
+      background/
+      content/
+      popup/
+      shared/
+    tests/
+  assets/
+  tests/
+    unit/
+    integration/
+    e2e/
+    soak/
+  scripts/
+    build/
+    release/
+    verify/
+  installer/
+  .github/
+    workflows/
+
+======================================================================
+4. MODULE BOUNDARIES
+======================================================================
+
+4.1 launcher
+- Entry point.
+- Version check.
+- Start updater hoặc Main App.
+- Không chứa business logic media.
+
+4.2 updater
+- Fetch manifest.
+- Compare version.
+- Download staging.
+- Verify checksum/signature.
+- Install.
+- Rollback.
+- Restart.
+
+4.3 presentation
+- PySide6 windows, views, view models.
+- Chỉ giao tiếp Application Services.
+- Không subprocess trực tiếp.
+
+4.4 application
+- Use cases.
+- SessionController.
+- PlaylistService.
+- TimelineService.
+- DeviceService.
+- UpdateService facade.
+- SettingsService.
+
+4.5 domain
+- Entities.
+- State machines.
+- Event policies.
+- Retry policies.
+- Pure logic, không phụ thuộc UI/FFmpeg.
+
+4.6 infrastructure
+- FFmpeg adapter.
+- FFprobe adapter.
+- Virtual camera adapter.
+- Virtual audio adapter.
+- WebSocket server.
+- Persistence.
+- Secure storage.
+- Logging.
+
+4.7 extension
+- Bridge client.
+- Seller Center adapter.
+- Tab binding.
+- Command executor.
+- Acknowledgement.
+
+======================================================================
+5. DOMAIN MODELS
+======================================================================
+
+Playlist
+- playlist_id
+- name
+- items
+- loop_enabled
+- current_index
+
+PlaylistItem
+- item_id
+- video_path
+- json_path
+- order_index
+- enabled
+- media_metadata
+- validation_status
+
+MediaMetadata
+- duration_ms
+- width
+- height
+- fps
+- video_codec
+- audio_codec
+- sample_rate
+- channels
+- has_audio
+
+Session
+- session_id
+- state
+- started_at
+- session_clock_ms
+- paused_total_ms
+- active_item_id
+- active_product_id
+
+TimelineScript
+- schema_version
+- script_id
+- video_filename
+- expected_duration_ms
+- timeline_events
+
+TimelineEvent
+- event_id
+- time_ms
+- type
+- payload
+- valid_for_ms
+- retry_policy
+- state
+
+BridgeConnection
+- connection_id
+- status
+- paired
+- last_heartbeat
+- bound_tab_id
+
+======================================================================
+6. MEDIA WORKER CONTRACT
+======================================================================
+
+Media Worker chạy process riêng.
+
+Commands:
+- LOAD(item)
+- PLAY
+- PAUSE
+- RESUME
+- SEEK(position_ms)
+- STOP
+- SHUTDOWN
+
+Events:
+- MEDIA_LOADED
+- PLAYBACK_STARTED
+- PLAYBACK_PAUSED
+- PLAYBACK_RESUMED
+- POSITION_UPDATED
+- END_OF_MEDIA
+- TELEMETRY
+- MEDIA_ERROR
+- WORKER_EXITED
+
+POSITION_UPDATED payload:
+{
+  "session_id": "...",
+  "playlist_item_id": "...",
+  "video_time_ms": 125400,
+  "session_time_ms": 8125400,
+  "is_paused": false
+}
+
+Telemetry:
+{
+  "fps": 29.97,
+  "dropped_frames": 2,
+  "audio_buffer_ms": 80,
+  "cpu_percent": 20.1,
+  "gpu_percent": 32.0,
+  "memory_mb": 540
+}
+
+======================================================================
+7. PLAYLIST ORCHESTRATION
+======================================================================
+
+Pseudo-flow:
+
+load current item
+validate mapping
+load media
+load timeline
+play
+while running:
+  update clocks
+  dispatch events
+on media end:
+  mark item completed
+  next enabled item
+if no next item and loop:
+  current_index = first enabled
+  increment loop_count
+  continue session_clock
+else:
+  completed
+
+JSON timeline được đánh giá theo Video Clock.
+Session Clock chỉ tích lũy và không dùng trực tiếp để so event time của file JSON.
+
+======================================================================
+8. TIMELINE SCHEDULER CONTRACT
+======================================================================
+
+Input:
+- Video Clock.
+- Timeline events.
+- Current event states.
+- Bridge status.
+- Active product state.
+
+Dispatch rule:
+- Event pending.
+- video_time_ms >= event.time_ms.
+- Event chưa expired.
+- Event không conflict.
+- Bridge connected.
+
+Nếu Bridge disconnected:
+- Event chuyển waiting_bridge hoặc giữ pending nội bộ.
+- Queue giới hạn.
+- valid_for_ms quyết định expiry.
+
+Sau reconnect:
+- Chọn event mới nhất còn valid.
+- Event cũ expired/skipped.
+- Không replay toàn bộ backlog.
+
+Seek:
+- Forward seek: bỏ qua event trước vị trí mới theo policy.
+- Backward seek: event acknowledged không reset mặc định.
+- Scheduler phải idempotent.
+
+======================================================================
+9. WEBSOCKET BRIDGE PROTOCOL
+======================================================================
+
+Endpoint:
+ws://127.0.0.1:<configured_port>
+
+Handshake:
+{
+  "protocol_version": "1.0",
+  "type": "HELLO",
+  "extension_version": "1.0.0",
+  "pairing_token": "...",
+  "tab_context": {
+    "url": "...",
+    "title": "..."
+  }
+}
+
+Server response:
+{
+  "protocol_version": "1.0",
+  "type": "WELCOME",
+  "connection_id": "...",
+  "heartbeat_interval_ms": 5000
+}
+
+Command:
+{
+  "protocol_version": "1.0",
+  "message_id": "msg_...",
+  "session_id": "session_...",
+  "type": "PIN_PRODUCT",
+  "created_at_ms": 0,
+  "expires_at_ms": 0,
+  "payload": {
+    "product_id": "..."
+  }
+}
+
+Ack:
+{
+  "protocol_version": "1.0",
+  "message_id": "msg_...",
+  "type": "COMMAND_RESULT",
+  "status": "SUCCESS",
+  "executed_at_ms": 0,
+  "payload": {
+    "product_id": "..."
+  },
+  "error": null
+}
+
+Status values:
+- SUCCESS
+- FAILED
+- EXPIRED
+- TAB_NOT_READY
+- PRODUCT_NOT_FOUND
+- NOT_PAIRED
+- INVALID_COMMAND
+
+Requirements:
+- message_id idempotent.
+- Max message size.
+- Heartbeat.
+- Timeout.
+- Reconnect backoff.
+- Localhost only.
+- Pairing token rotate được.
+
+======================================================================
+10. UPDATE ARCHITECTURE
+======================================================================
+
+Private repo:
+- Source.
+- Build workflow.
+- Tests.
+- Signing workflow.
+- Release automation.
+
+Public repo:
+- Releases.
+- latest.yml.
+- installer/package.
+- checksums.
+- release notes.
+
+Build flow:
+
+private main/tag
+  -> CI test
+  -> build artifact
+  -> sign
+  -> generate checksum
+  -> publish public release
+  -> generate and publish latest.yml
+
+Client flow:
+
+launcher
+  -> Splash Gatekeeper fetches latest.yml
+  -> compare semver
+  -> mandatory?
+  -> download staging
+  -> verify SHA-256
+  -> verify signature
+  -> close app
+  -> install
+  -> health check
+  -> restart
+  -> rollback on failure
+
+Atomicity:
+- Không overwrite file đang chạy.
+- Updater process độc lập.
+- Backup previous version.
+- Marker file update_in_progress.
+- Startup recovery nếu update bị gián đoạn.
+
+======================================================================
+11. CONFIGURATION
+======================================================================
+
+Config files:
+- app.json
+- ui.json
+- media.json
+- devices.json
+- bridge.json
+- updater.json
+- playlists/*.json
+- sessions/*.json
+
+Secrets:
+- pairing token seed.
+- integration API keys.
+- signing trust config nhạy cảm nếu có.
+
+Secrets không nằm trong JSON plain text.
+
+Config schema phải versioned:
+{
+  "schema_version": 1,
+  "data": {}
+}
+
+Migration:
+v1 -> v2 có migration function và test.
+
+======================================================================
+12. ERROR CATALOG
+======================================================================
+
+MEDIA-001 probe_failed
+MEDIA-002 no_audio_stream
+MEDIA-003 unsupported_codec
+MEDIA-004 worker_crashed
+MEDIA-005 seek_failed
+
+DEVICE-001 camera_not_found
+DEVICE-002 audio_device_not_found
+DEVICE-003 device_busy
+
+SCRIPT-001 invalid_json
+SCRIPT-002 schema_invalid
+SCRIPT-003 duplicate_event_id
+SCRIPT-004 duration_mismatch
+
+BRIDGE-001 disconnected
+BRIDGE-002 pairing_failed
+BRIDGE-003 heartbeat_timeout
+BRIDGE-004 command_timeout
+BRIDGE-005 invalid_ack
+
+UPDATE-001 latest_yml_unavailable
+UPDATE-002 checksum_mismatch
+UPDATE-003 signature_invalid
+UPDATE-004 install_failed
+UPDATE-005 rollback_failed
+
+APP-001 abnormal_shutdown
+APP-002 config_corrupt
+APP-003 unsupported_environment
+
+======================================================================
+13. ADR BẮT BUỘC
+======================================================================
+
+ADR-001 PySide6 thay CustomTkinter.
+ADR-002 Media Worker process isolation.
+ADR-003 Two-clock model.
+ADR-004 One JSON per video.
+ADR-005 Localhost WebSocket with pairing.
+ADR-006 Two-repository update architecture with Public Repo latest.yml.
+ADR-007 Splash Gatekeeper and mandatory update before Main Dashboard.
+ADR-008 Secure secret storage.
+ADR-009 One active product invariant.
+
+AI không được thay đổi các ADR này nếu chưa tạo ADR mới và được phê duyệt.
+
+======================================================================
+14. TEST CONTRACTS
+======================================================================
+
+Unit:
+- State machine.
+- Playlist selection.
+- Clock calculations.
+- Event dispatch.
+- Backlog policy.
+- Version compare.
+- Manifest validation.
+
+Integration:
+- FFprobe.
+- Worker IPC.
+- WebSocket.
+- Persistence.
+- Secure storage.
+- Updater staging.
+
+E2E:
+- Launch.
+- Update.
+- Load playlist.
+- Play.
+- Event dispatch.
+- Disconnect/reconnect.
+- Loop.
+- Shutdown.
+
+Soak:
+- 24 giờ.
+- 3+ video.
+- Nhiều loop.
+- Theo dõi memory/process/thread.
+
+
+======================================================================
+15. SPLASH GATEKEEPER ARCHITECTURE
+======================================================================
+
+Process model:
+
+DTAAutoLiveLauncher.exe
+  |
+  +-- SplashWindow (visible)
+  |
+  +-- UpdateCheckService
+  |     |
+  |     +-- fetch latest.yml
+  |     +-- parse version
+  |     +-- compare local version
+  |
+  +-- if up-to-date -> start/show MainApp.exe
+  |
+  +-- if update -> launch DTAUpdater.exe
+        |
+        +-- download package
+        +-- verify checksum/signature
+        +-- stop old processes
+        +-- backup current version
+        +-- install/replace
+        +-- health check
+        +-- restart launcher
+        +-- rollback on failure
+
+MainApp.exe không được show window trước khi Launcher cấp quyền.
+
+Splash UI states:
+- INITIALIZING
+- CHECKING
+- UPDATE_AVAILABLE
+- DOWNLOADING
+- VERIFYING
+- INSTALLING
+- RESTARTING
+- UP_TO_DATE
+- NETWORK_ERROR
+- UPDATE_ERROR
+
+Event contract:
+- status_changed(message)
+- progress_changed(percent, downloaded_bytes, total_bytes)
+- update_available(version)
+- up_to_date(version)
+- retry_allowed
+- fatal_error(code, message)
+
+======================================================================
+16. LATEST.YML CONTRACT
+======================================================================
+
+Canonical keys:
+
+version: 1.0.1
+files:
+  - url: DTA-AutoLive-Setup-1.0.1.exe
+    sha512: BASE64_SHA512
+    size: 123456789
+path: DTA-AutoLive-Setup-1.0.1.exe
+sha512: BASE64_SHA512
+releaseDate: 2026-07-27T00:00:00.000Z
+releaseNotes: |
+  Release notes.
+
+DTA AutoLive có thể bổ sung key riêng dưới namespace dta:
+dta:
+  mandatory: true
+  minimumSupportedVersion: 1.0.0
+  channel: stable
+
+Quy tắc tương thích:
+- Các key canonical phải giữ tên.
+- Extension key không được làm parser cũ lỗi.
+- Checksum SHA-512 của latest.yml là chuẩn chính để tương thích hệ cũ.
+- Có thể phát hành thêm SHA-256 phụ, nhưng không thay thế SHA-512 nếu workflow cũ phụ thuộc nó.
+
+======================================================================
+17. GITHUB ACTIONS RELEASE CONTRACT
+======================================================================
+
+Trigger:
+on:
+  push:
+    tags:
+      - 'v*'
+
+Private Repo workflow:
+1. checkout
+2. setup Python
+3. install locked dependencies
+4. lint/type/test
+5. build Windows installer
+6. calculate SHA-512
+7. generate latest.yml
+8. publish installer + latest.yml to Public Repo release
+9. verify public download
+
+Secret:
+- DTA_RELEASE_TOKEN
+- Chỉ cấp quyền ghi release vào Public Repo.
+- Không đưa vào binary, logs hoặc artifacts.
+
+Khác với ví dụ Electron cũ:
+- Không dùng electron-builder.
+- Dùng script build Python tương ứng, ví dụ PyInstaller/Nuitka + Inno Setup/NSIS.
+- Tuy nhiên Git Tag trigger, DTA_RELEASE_TOKEN, Public Repo và latest.yml phải giữ nguyên.
+
+======================================================================
+18. STRICT MODE NETWORK POLICY
+======================================================================
+
+Default:
+strict_update_check = true
+
+Nếu network error:
+- Splash giữ mở.
+- MainApp không start.
+- Retry và Exit là hai action duy nhất.
+- Retry có backoff và timeout.
+- Error log không chứa token.
+- Không dùng cached latest.yml để bỏ qua check trong v1.0, trừ khi sau này có ADR phê duyệt offline grace period.
+
+======================================================================
+19. ADR BỔ SUNG
+======================================================================
+
+ADR-010 latest.yml is the updater metadata source of truth.
+ADR-011 Splash Screen is the startup gatekeeper.
+ADR-012 Strict Mode blocks offline startup.
+ADR-013 Git tags trigger publishing from Private to Public Repo.
+ADR-014 SHA-512 compatibility is retained from the legacy DTA updater.

@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTA AutoLive v2.4.0 – Broadcast Operations Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Topbar (46px) -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <img src="assets/logo.png" class="topbar-brand-icon" alt="DTA Logo">
+        <span class="topbar-app-name">DTA AutoLive</span>
+        <span class="topbar-version-badge" id="appVersionBadge">v2.4.0-PRO</span>
+      </div>
+
+      <div class="topbar-center">
+        Live Stream Operations Console – DTA Studio
+      </div>
+
+      <div class="topbar-right">
+        <!-- Check Update Button -->
+        <button class="theme-toggle-btn" id="btnCheckAppUpdate" onclick="window.checkAppUpdateManual()" title="Kiểm tra và nâng cấp phiên bản mới từ máy chủ DTA Studio">
+          <span id="updateBtnIcon">🔄</span>
+          <span id="updateBtnLabel">Cập nhật</span>
+        </button>
+
+        <!-- Hotkeys Quick Help Button -->
+        <button class="theme-toggle-btn" id="btnHotkeysHelp" onclick="window.toggleHotkeysModal()" title="Xem danh sách phím tắt nhanh (F1 hoặc ?)">
+          <span>⌨️</span>
+          <span>Phím tắt</span>
+        </button>
+
+        <!-- GenZ Theme Toggle Switch (Dark / Light) -->
+        <button class="theme-toggle-btn" id="btnToggleTheme" title="Chuyển đổi giao diện Sáng / Tối">
+          <span id="themeIcon">☀️</span>
+          <span id="themeLabel">Chế độ Sáng</span>
+        </button>
+
+        <!-- Dual Independent Status Chips -->
+        <div class="topbar-status-chip" id="topbarBackendChip">
+          <span class="status-dot dot-green" id="topbarBackendDot"></span>
+          <span id="topbarBackendText">Máy chủ AI: Sẵn sàng</span>
+        </div>
+
+        <div class="topbar-status-chip" id="topbarBridgeChip">
+          <span class="status-dot dot-green" id="topbarBridgeDot"></span>
+          <span id="topbarBridgeText">Cổng kết nối: Hoạt động</span>
+        </div>
+
+        <div class="topbar-window-controls">
+          <button class="window-btn" id="btnMinimizing" title="Thu nhỏ">—</button>
+          <button class="window-btn" id="btnMaximizing" title="Phóng to / Khôi phục">▢</button>
+          <button class="window-btn close-btn" id="btnCloseApp" title="Đóng ứng dụng">✕</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="main-workspace">
+
+      <!-- Navigation Sidebar (236px) -->
+      <aside class="sidebar">
+        <div class="sidebar-brand-card">
+          <img src="assets/logo.png" alt="DTA Studio Logo" class="sidebar-logo">
+          <div class="sidebar-brand-info">
+            <span class="sidebar-brand-title">DTA Studio</span>
+            <span class="sidebar-brand-sub">Broadcast v2.3.2 AI</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="sidebar-nav-item active" data-tab="tab1" title="Phát Live Stream & Bộ Lọc Video">
+            <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.93 4.93a10 10 0 0 1 14.14 0"/><path d="M7.76 7.76a6 6 0 0 1 8.48 0"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+            <span>Phát Live</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="tab2" title="Ghim Sản Phẩm & Timeline Video">
+            <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+            <span>Ghim SP</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="tab3" title="Seeding Bình Luận Vệ Tinh AI">
+            <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Seeding</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="tab4" title="Host Live Trợ Lý AI Chatbot">
+            <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <span>Host Live</span>
+          </button>
+          <button class="sidebar-nav-item" data-tab="tab5" title="Cài Đặt Hệ Thống & AI Qwen">
+            <svg class="sidebar-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Cài Đặt</span>
+          </button>
+        </nav>
+
+        <!-- System Compact Monitor Card -->
+        <div class="sidebar-system-card">
+          <div class="system-card-header">
+            <span>TÀI NGUYÊN MÁY CHỦ</span>
+            <span class="badge badge-cyan" id="badgeGpuStatus">GPU READY</span>
+          </div>
+          <div class="meter-row">
+            <span class="meter-label">CPU</span>
+            <div class="meter-track"><div class="meter-fill cpu" id="cpuMeterBar" style="width: 18%;"></div></div>
+            <span class="meter-val" id="cpuMeterVal">18%</span>
+          </div>
+          <div class="meter-row">
+            <span class="meter-label">RAM</span>
+            <div class="meter-track"><div class="meter-fill ram" id="ramMeterBar" style="width: 36%;"></div></div>
+            <span class="meter-val" id="ramMeterVal">36%</span>
+          </div>
+          <div class="meter-row">
+            <span class="meter-label">GPU</span>
+            <div class="meter-track"><div class="meter-fill" id="gpuMeterBar" style="width: 0%; background: var(--accent);"></div></div>
+            <span class="meter-val" id="gpuMeterVal">0%</span>
+          </div>
+        </div>
+
+        <div class="sidebar-footer-meta">
+          <span>Tài khoản: admin (DTA Studio)</span>
+          <span>Bản quyền: Đức Trường AI</span>
+        </div>
+      </aside>
+
+      <!-- Main Content Dynamic Panels Container -->
+      <main class="content-area">
+
+        <!-- In-Page Connection Alert Banner (Dynamic) -->
+        <div class="inpage-alert-banner" id="inpageConnectionAlert" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>⚠️</span>
+            <span id="inpageAlertText">Mất kết nối máy chủ AI</span>
+          </div>
+          <button class="btn btn-secondary" style="height: 26px; padding: 0 8px; font-size: 11px;" id="btnRetryConnection">Kết nối lại</button>
+        </div>
+
+        <!-- ================================================================
+             TAB 1: TỔNG QUAN LIVE
+             ================================================================ -->
+        <div id="tab1" class="view-panel active">
+          
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 class="page-title">Tổng quan Live Stream</h1>
+              <p class="page-description">Quản lý luồng phát Virtual Cam & Audio sang TikTok LIVE Studio</p>
+            </div>
+            <div class="page-actions-group">
+              <span class="badge badge-green" id="headerLiveStatusBadge">Trạng thái: Sẵn sàng</span>
+            </div>
+          </div>
+
+          <!-- 4 Metric Cards Row -->
+          <div class="metrics-row">
+            <div class="metric-card" id="metricCardSession">
+              <span class="metric-card-label">Trạng thái</span>
+              <span class="metric-card-value" id="cardSessionStatus">Chờ phát</span>
+              <span class="metric-card-sub" id="cardSessionSub">Standby</span>
+            </div>
+
+            <div class="metric-card session-clock">
+              <span class="metric-card-label">Thời lượng Live</span>
+              <span class="metric-card-value" id="cardLiveDuration">00:00:00</span>
+              <span class="metric-card-sub">Phiên hiện tại</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-card-label">Video hiện tại</span>
+              <span class="metric-card-value" id="cardVideoPosition">00:00:00</span>
+              <span class="metric-card-sub" id="cardVideoName" title="Chưa chọn video">Chưa chọn video</span>
+            </div>
+
+            <div class="metric-card stream-health">
+              <span class="metric-card-label">Tốc độ khung hình</span>
+              <span class="metric-card-value" id="cardStreamFps">30 FPS</span>
+              <span class="metric-card-sub" id="cardStreamSub">Chuẩn 30 FPS</span>
+            </div>
+          </div>
+
+          <!-- Device Health Strip -->
+          <div class="device-health-strip">
+            <div class="device-tile" title="DTA Camera (DirectShow)">
+              <div class="device-tile-icon-box">📷</div>
+              <div class="device-tile-info">
+                <span class="device-tile-name">DTA Camera</span>
+                <span class="device-tile-status"><span class="status-dot dot-green"></span> Sẵn sàng</span>
+              </div>
+            </div>
+
+            <div class="device-tile" title="DTA Audio (Virtual Sink)">
+              <div class="device-tile-icon-box">🎙️</div>
+              <div class="device-tile-info">
+                <span class="device-tile-name">DTA Audio</span>
+                <span class="device-tile-status"><span class="status-dot dot-green"></span> Sẵn sàng</span>
+              </div>
+            </div>
+
+            <div class="device-tile" title="Extension Bridge WebSocket">
+              <div class="device-tile-icon-box">🌐</div>
+              <div class="device-tile-info">
+                <span class="device-tile-name">Extension Bridge</span>
+                <span class="device-tile-status"><span class="status-dot dot-green" id="devBridgeDot"></span> <span id="devBridgeText">Đã kết nối</span></span>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary" id="btnRegisterDevices">⚡ Đăng ký Devices</button>
+          </div>
+
+          <!-- Studio Main 3-Column Grid: Left (Source/Playlist) | Center (Preview 9:16 & Controls) | Right (Anti-Duplicate Filters) -->
+          <div class="studio-three-column-grid">
+            
+            <!-- CỘT 1 (BÊN TRÁI): QUẢN LÝ NGUỒN PHÁT (PLAYLIST & TIẾP SÓNG TIKTOK LIVE) -->
+            <div class="card playlist-queue-panel">
+              <div class="card-header">
+                <!-- Source Switcher Tabs -->
+                <div style="display: flex; gap: 4px; background: var(--surface-2); padding: 3px; border-radius: var(--radius-md); border: 1px solid var(--border-soft);">
+                  <button class="btn btn-primary" style="height: 28px; font-size: 11px; padding: 0 8px;" id="btnSourcePlaylist">📁 Playlist Video</button>
+                  <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 8px;" id="btnSourceTikTokUrl">🌐 Tiếp Sóng Live</button>
+                </div>
+                
+                <span class="badge badge-green" id="sourceModeBadge">Chế độ: Playlist</span>
+              </div>
+
+              <!-- VIEW 1: Playlist Queue Manager -->
+              <div id="sourcePanelPlaylist" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0;">
+                <div class="playlist-toolbar">
+                  <input type="text" class="playlist-search-input" id="inputSearchPlaylist" placeholder="🔍 Tìm video...">
+                  <button class="btn btn-primary" style="height: 30px; font-size: var(--font-caption);" id="btnAddVideo">+ Thêm</button>
+                  <button class="btn btn-secondary" style="height: 30px; font-size: var(--font-caption);" id="btnAddFolder" title="Chọn thư mục chứa video">📁 Folder</button>
+                  <button class="btn btn-secondary" style="height: 30px; font-size: var(--font-caption);" id="btnShufflePlaylist" title="Trộn ngẫu nhiên thứ tự danh sách video">🔀 Trộn</button>
+                  <button class="btn btn-secondary" style="height: 30px; font-size: var(--font-caption);" id="btnClearPlaylist" title="Xóa toàn bộ video khỏi playlist">🗑 Xóa</button>
+                </div>
+
+                <div class="playlist-table-container">
+                  <table class="dta-table" id="playlistTable" style="table-layout: fixed; width: 100%;">
+                    <thead>
+                      <tr>
+                        <th style="width: 38px; text-align: center;">STT</th>
+                        <th style="width: 80px; text-align: center;">Trạng thái</th>
+                        <th>Tên Video</th>
+                        <th style="width: 75px; text-align: center;">Âm thanh</th>
+                        <th style="width: 36px; text-align: center;">Xóa</th>
+                      </tr>
+                    </thead>
+                    <tbody id="playlistTableBody">
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="playlist-summary-footer">
+                  <span>Tổng: <strong id="plTotalCount">0 video</strong></span>
+                  <span>Hợp lệ: <strong style="color: var(--success);" id="plValidCount">0/0</strong></span>
+                  <span>Thời lượng: <strong id="plTotalDuration">00:00</strong></span>
+                </div>
+              </div>
+
+              <!-- VIEW 2: TikTok Live URL Relay Manager -->
+              <div id="sourcePanelTikTokUrl" style="display: none; flex-direction: column; gap: 8px; flex: 1; min-height: 0;">
+                <!-- TikTok Account & Cookie Status Bar -->
+                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--surface-2); padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--border-soft);">
+                  <div style="display: flex; align-items: center; gap: 6px; font-size: 11.5px;">
+                    <span id="tiktokAuthIcon">🔒</span>
+                    <span id="tiktokAuthStatusText" style="color: var(--text-secondary); font-weight: 500;">Chưa đăng nhập TikTok</span>
+                  </div>
+                  <div style="display: flex; gap: 6px;">
+                    <button type="button" class="btn btn-primary" id="btnOpenTikTokLogin" onclick="window.openTikTokLoginModal()" style="height: 25px; font-size: 11px; padding: 0 10px; font-weight: 600;" title="Mở Google Chrome để đăng nhập và tự động đồng bộ tài khoản">🔑 Đăng Nhập</button>
+                    <button type="button" class="btn btn-secondary" id="btnClearTikTokCookies" onclick="window.clearTikTokCookiesAction()" style="height: 25px; font-size: 11px; padding: 0 8px; display: none;" title="Đăng xuất và xóa tài khoản đã lưu">🗑 Đăng Xuất</button>
+                  </div>
+                </div>
+
+                <!-- URL Input Bar -->
+                <div style="display: flex; gap: 6px;">
+                  <input type="text" class="dta-input" id="inputTikTokLiveUrl" placeholder="🔗 Link TikTok Live (VD: @username/live)" style="flex: 1; font-size: var(--font-caption); height: 32px;">
+                  <button class="btn btn-primary" id="btnResolveTikTokUrl" style="height: 32px; font-size: var(--font-caption); padding: 0 10px;">⚡ Nạp</button>
+                </div>
+
+                <!-- Live Stream Room Info Card -->
+                <div class="card" style="background: var(--surface-2); border-color: var(--border-soft); padding: 10px; gap: 6px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 700; color: var(--text-primary);" id="ttRoomTitle">Chưa có luồng</span>
+                    <span class="badge badge-warning" id="ttLiveStatusBadge">Chưa nạp</span>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                    <div>Kênh: <strong id="ttStreamerName" style="color: var(--accent);">--</strong></div>
+                    <div>Người xem: <strong id="ttViewerCount" style="color: var(--success);">--</strong></div>
+                    <div>Phân giải: <strong id="ttResolution">1080x1920</strong></div>
+                    <div>Tốc độ: <strong id="ttFps">30 FPS</strong></div>
+                  </div>
+                </div>
+
+                <!-- DTA Live Stream Recorder Config Panel -->
+                <div class="card dta-recorder-box" style="background: var(--surface-2); border-color: rgba(255, 77, 109, 0.35); padding: 10px; gap: 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="filter-toggle" style="margin: 0; font-weight: 700; color: var(--text-primary); font-size: var(--font-body); cursor: pointer;">
+                      <input type="checkbox" id="chkAutoRecordStream" checked>
+                      <span class="filter-custom-check"></span>
+                      <span>🔴 Tự động ghi hình (MP4)</span>
+                    </label>
+                    <span class="badge badge-danger" id="recorderStatusTag">MP4 Copy</span>
+                  </div>
+
+                  <!-- Thư mục lưu video -->
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span class="form-label">Thư mục lưu video:</span>
+                    <div style="display: flex; gap: 4px;">
+                      <input type="text" class="dta-input" id="inputRecordOutputDir" placeholder="C:\...\Videos\DTA_Live_Records" readonly style="flex: 1; height: 28px; font-size: var(--font-code); font-family: var(--font-code); background: var(--surface-3); cursor: default;">
+                      <button class="btn btn-secondary" id="btnSelectRecordDir" title="Chọn thư mục lưu trên máy" style="height: 28px; font-size: var(--font-caption); padding: 0 8px;">📁 Chọn</button>
+                      <button class="btn btn-secondary" id="btnOpenRecordDir" title="Mở thư mục lưu trên Windows Explorer" style="height: 28px; font-size: var(--font-caption); padding: 0 8px;">📂 Mở</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CỘT 2 (Ở GIỮA): MÀN HÌNH XEM TRƯỚC (PREVIEW 9:16) & ĐIỀU KHIỂN PHIÊN -->
+            <div class="card stage-center-panel">
+              <div class="card-header">
+                <span class="card-title">Màn hình xem trước (9:16)</span>
+                <span class="badge badge-cyan" id="liveBadgeStatus">PREVIEW</span>
+              </div>
+
+              <!-- Stage Viewport Box Chiếm Trọng Tâm Màn Hình 9:16 -->
+              <div class="stage-viewport-box">
+                <div class="stage-screen-container">
+                  <div class="stage-screen-9-16" id="stageScreen916">
+                    <!-- Top Badges Overlay (Clean Vertical Stack - Tránh Chồng Đè) -->
+                    <div class="stage-badges-stack">
+                      <span class="stage-badge-indicator" id="stageBadge">STANDBY</span>
+                      <span class="stage-rec-badge" id="stageRecBadge" style="display: none;">⏺ REC 00:00:00 | 0 MB</span>
+                    </div>
+
+                    <video id="previewVideoPlayer" class="stage-video" muted src="../../sample_dta_live_1080x1920.mp4"></video>
+                    <canvas id="livePreviewCanvas" class="stage-video" style="display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; pointer-events: none;"></canvas>
+                    
+                    <!-- ⚡ Overdrive: Real-time Audio Reactive Spectrum Waveform -->
+                    <canvas id="audioSpectrumCanvas" class="stage-audio-spectrum"></canvas>
+
+                    <!-- ⚡ Overdrive: Cyberpunk Holographic HUD Frame & Scanner -->
+                    <div class="stage-hud-overlay">
+                      <div class="hud-corner top-left"></div>
+                      <div class="hud-corner top-right"></div>
+                      <div class="hud-corner bottom-left"></div>
+                      <div class="hud-corner bottom-right"></div>
+                      <div class="hud-scan-line"></div>
+                    </div>
+                  </div>
+
+                  <!-- Adobe Premiere Pro Studio VU Meter (Single Dynamic Level Color) -->
+                  <div class="stage-vu-meter" id="vuMeterBar" title="Cường độ âm thanh Studio (Premiere Pro Style)">
+                    <div class="vu-liquid-track">
+                      <!-- Thanh sóng đơn sắc đồng nhất thay đổi màu theo mức (Xanh -> Vàng -> Đỏ) -->
+                      <div class="vu-solid-bar safe" id="vuSolidBar"></div>
+                      <!-- Vạch đỉnh Peak Line -->
+                      <div class="vu-peak-line" id="vuPeakLine"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Professional Control Deck: 4 Action Buttons -->
+              <div class="control-deck">
+                <div class="control-btn-grid">
+                  <button class="btn btn-primary" id="btnStartLive" title="Bắt đầu phát Live Stream">▶ Bắt đầu</button>
+                  <button class="btn btn-secondary" id="btnPauseLive" title="Tạm dừng phiên phát" disabled>❚❚ Tạm dừng</button>
+                  <button class="btn btn-danger" id="btnStopLive" title="Dừng hẳn phiên phát" disabled>◼ Dừng</button>
+                  <button class="btn btn-secondary btn-icon-only" id="btnToggleMute" title="Bật/Tắt âm thanh loa xem trước">🔊</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CỘT 3 (BÊN PHẢI): TOÀN BỘ CÀI ĐẶT LUỒNG, BỘ TRỘN ÂM THANH & BỘ LỌC CHỐNG TRÙNG LẶP -->
+            <div class="card filter-right-panel">
+              <div class="card-header">
+                <span class="card-title">🎛️ Cài đặt & Bộ lọc Live</span>
+                <button class="btn btn-secondary" id="btnResetFilters" style="height: 22px; padding: 0 8px; font-size: var(--font-caption);">↺ Đặt lại</button>
+              </div>
+
+              <div class="filter-vertical-deck">
+                <!-- Section 1: Cài đặt luồng phát & Audio Sink Router -->
+                <div class="settings-group-card">
+                  <div class="audio-sink-row">
+                    <span class="audio-sink-label">🎙️ Xuất Audio:</span>
+                    <select class="dta-select" id="selectAudioSink" title="Chọn thiết bị âm thanh đầu ra">
+                      <option value="default">🔊 Mặc định (Loa máy tính)</option>
+                      <option value="cable" selected>🎙️ DTA Audio / VB-CABLE (TikTok & Discord)</option>
+                    </select>
+                  </div>
+
+                  <div style="margin-top: 5px;">
+                    <label class="switch-container">
+                      <span class="switch-title" style="font-size: 11px; color: var(--cyan); font-weight: 500;">🛡️ Chống dừng Live Studio (Anti-AFK)</span>
+                      <div class="dta-switch">
+                        <input type="checkbox" id="chkAntiAfkLive" checked>
+                        <span class="switch-slider"></span>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div style="margin-top: 5px;">
+                    <label class="switch-container">
+                      <span class="switch-title" style="font-size: 11px; color: var(--danger); font-weight: 500;">🛑 Tự tắt Live Studio khi hết video</span>
+                      <div class="dta-switch">
+                        <input type="checkbox" id="chkAutoStopLiveStudio" checked>
+                        <span class="switch-slider"></span>
+                      </div>
+                    </label>
+                  </div>
+
+                  <!-- Live Studio Coordinate Calibration & Test Control -->
+                  <div style="margin-top: 5px; display: flex; flex-direction: column; gap: 4px; background: rgba(254, 44, 85, 0.05); border: 1px solid rgba(254, 44, 85, 0.2); border-radius: var(--radius-sm); padding: 5px 6px;">
+                    <div style="display: flex; gap: 6px;">
+                      <button type="button" class="btn" id="btnCalibrateStopLiveStudio" style="flex: 1; height: 25px; font-size: 10px; font-weight: 600; background: rgba(0, 242, 254, 0.15); border: 1px solid var(--accent); color: var(--accent);" title="Kích hoạt chế độ bắt tọa độ 3 bước: Rê chuột và nhấn duy nhất Phím F8">
+                        🎯 BẮT TỌA ĐỘ TẮT (F8)
+                      </button>
+                      <button type="button" class="btn" id="btnTestStopLiveStudio" style="flex: 1; height: 25px; font-size: 10px; font-weight: 600; background: rgba(254, 44, 85, 0.15); border: 1px solid var(--danger); color: #fff;" title="Chạy thử nghiệm quy trình click tắt TikTok Live Studio theo tọa độ đã lưu">
+                        ⚡ TEST TẮT THỬ
+                      </button>
+                    </div>
+
+                    <!-- Realtime Mouse Coordinates HUD -->
+                    <div id="boxCalibRealtimeCoords" style="display: none; background: rgba(0, 242, 254, 0.1); border: 1px dashed var(--accent); border-radius: 4px; padding: 2px 6px; font-size: 9.5px; color: var(--accent); text-align: center; font-weight: 600;">
+                      🖱️ Tọa độ Chuột: <span id="valCalibRealtimePos">X: 0, Y: 0</span> <b style="color: #FFD700;">(Nhấn Phím F8)</b>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; padding-top: 1px;">
+                      <span id="labelLiveStudioCoordsStatus" style="color: var(--text-tertiary);" title="Trạng thái hiệu chỉnh vị trí nút trên màn hình của bạn">Tọa độ: Tự động (Mặc định)</span>
+                      <button type="button" id="btnClearLiveStudioCoords" style="background: none; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 10.5px; padding: 0 4px;" title="Xóa tọa độ đã lưu, quay về mặc định">🗑 Xóa</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section 2: 🎵 BỘ TRỘN ÂM THANH & NHẠC NỀN (AUDIO MIXER) -->
+                <div class="settings-group-card" style="background: rgba(0, 242, 254, 0.03); border: 1px solid rgba(0, 242, 254, 0.2); padding: 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 4px;">
+                      🎵 BỘ TRỘN ÂM THANH (MIXER)
+                    </span>
+                    <span class="badge badge-cyan" id="bgmStatusBadge" style="font-size: 9.5px; padding: 1px 6px;">BGM: Sẵn sàng</span>
+                  </div>
+
+                  <!-- BGM Folder Toolbar -->
+                  <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 6px;">
+                    <button class="btn btn-secondary" id="btnSelectBgmFolder" style="height: 24px; font-size: 10px; padding: 0 6px; flex-shrink: 0;" title="Chọn thư mục chứa các bài nhạc nền (.mp3, .wav, .aac,...)">
+                      📁 Chọn Nhạc
+                    </button>
+                    <button class="btn btn-primary" id="btnToggleBgmPlay" style="height: 24px; font-size: 10px; padding: 0 8px; flex-shrink: 0;" title="Bật hoặc Tắt phát nhạc nền">
+                      ▶ Bật Nhạc
+                    </button>
+                    <button class="btn btn-secondary btn-icon-only" id="btnNextBgmTrack" style="height: 24px; width: 24px; min-width: 24px; font-size: 10px;" title="Chuyển sang bài nhạc nền kế tiếp">
+                      ⏭
+                    </button>
+                    <div id="bgmTrackDisplay" style="flex: 1; min-width: 0; font-size: 10px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--surface-3); padding: 2px 6px; border-radius: var(--radius-xs);" title="Chưa chọn thư mục nhạc nền">
+                      Chưa có nhạc nền
+                    </div>
+                  </div>
+
+                  <!-- 2 Horizontal Volume Sliders -->
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div class="filter-slider-item">
+                      <div class="filter-slider-header" style="font-size: 10px;">
+                        <span>🎬 Âm lượng Video:</span>
+                        <span class="val" id="valVideoVolume">100%</span>
+                      </div>
+                      <input type="range" class="dta-range-slider" id="sliderVideoVolume" min="0" max="150" value="100">
+                    </div>
+
+                    <div class="filter-slider-item">
+                      <div class="filter-slider-header" style="font-size: 10px;">
+                        <span>🎶 Âm lượng Nhạc nền (BGM):</span>
+                        <span class="val" id="valBgmVolume" style="color: var(--cyan);">30%</span>
+                      </div>
+                      <input type="range" class="dta-range-slider" id="sliderBgmVolume" min="0" max="100" value="30">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section 3: 🎨 6 Real-time Sliders Compact 2-Column Grid -->
+                <div class="filter-vertical-sliders" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                  <div class="filter-slider-item">
+                    <div class="filter-slider-header">
+                      <span>Độ sáng</span>
+                      <span class="val" id="valBrightness">100%</span>
+                    </div>
+                    <input type="range" class="dta-range-slider" id="sliderBrightness" min="60" max="160" value="100">
+                  </div>
+
+                  <div class="filter-slider-item">
+                    <div class="filter-slider-header">
+                      <span>Tương phản</span>
+                      <span class="val" id="valContrast">100%</span>
+                    </div>
+                    <input type="range" class="dta-range-slider" id="sliderContrast" min="60" max="160" value="100">
+                  </div>
+
+                  <div class="filter-slider-item">
+                    <div class="filter-slider-header">
+                      <span>Bão hòa</span>
+                      <span class="val" id="valSaturation">100%</span>
+                    </div>
+                    <input type="range" class="dta-range-slider" id="sliderSaturation" min="0" max="250" value="100">
+                  </div>
+
+                  <div class="filter-slider-item">
+                    <div class="filter-slider-header">
+                      <span>Góc lệch</span>
+                      <span class="val" id="valHue">0°</span>
+                    </div>
+                    <input type="range" class="dta-range-slider" id="sliderHue" min="-90" max="90" value="0">
+                  </div>
+
+                  <div class="filter-slider-item">
+                    <div class="filter-slider-header">
+                      <span>Cắt viền</span>
+                      <span class="val" id="valZoom">100%</span>
+                    </div>
+                    <input type="range" class="dta-range-slider" id="sliderZoom" min="100" max="130" value="100">
+                  </div>
+
+                  <div class="filter-slider-item">
+                    <div class="filter-slider-header">
+                      <span>Làm nét</span>
+                      <span class="val" id="valSharpen">100%</span>
+                    </div>
+                    <input type="range" class="dta-range-slider" id="sliderSharpen" min="100" max="140" value="100">
+                  </div>
+                </div>
+
+                <!-- Section 4: 3 Feature Switches -->
+                <div class="filter-vertical-toggles" style="display: flex; flex-direction: column; gap: 4px;">
+                  <label class="switch-container">
+                    <span class="switch-title" style="font-size: 11px;">🔀 Lật gương hình ảnh</span>
+                    <div class="dta-switch"><input type="checkbox" id="chkFlipMirror" checked><span class="switch-slider"></span></div>
+                  </label>
+
+                  <label class="switch-container">
+                    <span class="switch-title" style="font-size: 11px;">🌫️ Hạt vi sai 4 góc</span>
+                    <div class="dta-switch"><input type="checkbox" id="chkNoiseCorner" checked><span class="switch-slider"></span></div>
+                  </label>
+
+                  <label class="switch-container">
+                    <span class="switch-title" style="font-size: 11px;">🎵 Dịch cao độ Audio (0.3%)</span>
+                    <div class="dta-switch"><input type="checkbox" id="chkPitchAudio" checked><span class="switch-slider"></span></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Collapsible Diagnostics Drawer -->
+          <div class="diagnostics-drawer collapsed" id="diagnosticsDrawer">
+            <div class="diagnostics-toolbar">
+              <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;" id="btnToggleDiagnostics">
+                <span style="font-size: var(--font-caption); font-weight: 700; color: var(--text-secondary);">📝 NHẬT KÝ HỆ THỐNG</span>
+                <span id="diagToggleIcon" class="text-caption text-accent">▸ Nhấn để mở rộng</span>
+              </div>
+
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <select class="dta-select" id="selectLogLevel" style="height: 22px; font-size: var(--font-caption); padding: 0 4px;">
+                  <option value="ALL">Tất cả Logs</option>
+                  <option value="INFO">INFO</option>
+                  <option value="SUCCESS">SUCCESS</option>
+                  <option value="WARNING">WARNING</option>
+                  <option value="ERROR">ERROR</option>
+                </select>
+                <button class="btn btn-secondary" style="height: 22px; font-size: 11px; padding: 0 6px;" id="btnCopyLog">📋 Sao chép</button>
+                <button class="btn btn-secondary" style="height: 22px; font-size: 11px; padding: 0 6px;" id="btnClearLog">🗑 Xóa</button>
+              </div>
+            </div>
+
+            <div class="diagnostics-box" id="terminalBox">
+<span class="log-info">[08:00:00] [INFO] Khởi động DTA AutoLive v1.1.0 Broadcast Operations Console...</span>
+<span class="log-success">[08:00:01] [SUCCESS] Kích hoạt luồng 30 FPS cho DTA Camera & DTA Audio DirectShow Drivers</span>
+<span class="log-success">[08:00:02] [SUCCESS] WebSocket Extension Bridge đã kết nối thành công (ws://127.0.0.1:8765)</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================================================================
+             TAB 2: SẢN PHẨM & TIKTOK SHOP AUTOPIN & TIMELINE
+             ================================================================ -->
+        <div id="tab2" class="view-panel">
+          
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 class="page-title">📌 Sản Phẩm & Kịch Bản Timeline</h1>
+              <p class="page-description">Ghim SP giỏ hàng luân phiên & đồng bộ kịch bản video</p>
+            </div>
+            <div class="page-actions-group">
+              <button type="button" class="btn btn-secondary" id="btnScrapeTikTokCart" onclick="window.scrapeTikTokLiveCart()" style="background: var(--accent-soft); border-color: var(--accent); color: var(--accent);" title="Cào tự động toàn bộ sản phẩm, giá bán, flash sale, tồn kho trên Dashboard để làm nguồn dữ liệu cho AI">⚡ Cào Giỏ Hàng</button>
+              <button type="button" class="btn btn-secondary" id="btnTestPinProduct" onclick="window.testPinProduct()" style="border-color: var(--accent); color: var(--accent);" title="Ghim thử 1 sản phẩm để kiểm tra kết nối với TikTok Shop">⚡ Ghim Thử SP #1</button>
+              <button type="button" class="btn btn-primary" id="btnLaunchTikTokChrome" onclick="window.launchTikTokShopBrowser()" style="background: var(--violet); border-color: var(--violet);" title="Mở Google Chrome kết nối TikTok Shop Streamer trên cổng CDP 9222">🌐 Mở Chrome Live (CDP)</button>
+            </div>
+          </div>
+
+          <!-- Section 1: AutoPin Setup & Status Controller -->
+          <div class="card autopin-setup-card" style="padding: 14px 18px; gap: 12px;">
+            <div class="autopin-config-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 14px; align-items: end;">
+              <div>
+                <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 4px;">Danh sách STT SP ghim (VD: 1, 2, 3...):</label>
+                <input type="text" class="dta-input" id="inputPinProductList" value="1, 2, 3, 4, 5, 6, 7, 8, 9, 10" placeholder="1, 2, 3, 4, 5...">
+              </div>
+
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label style="font-size: var(--font-caption); color: var(--text-secondary);">Thời gian cơ sở (giây):</label>
+                  <span style="font-size: 10px; color: var(--accent); font-weight: 600;" title="Tự động ngẫu nhiên hóa thời gian chờ để chống lặp lại">🎲 ±30% Random</span>
+                </div>
+                <input type="number" class="dta-input" id="inputPinInterval" value="10" min="3" max="120" title="Thời gian chờ cơ sở. Hệ thống sẽ tự động biến thiên ngẫu nhiên quanh mốc này">
+              </div>
+
+              <div>
+                <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 4px;">Thuật toán ghim:</label>
+                <select class="dta-select" id="selectPinMode">
+                  <option value="ping_pong">🏓 Ping-Pong (1➔N rồi N➔1)</option>
+                  <option value="loop">🔄 Luân phiên (1➔N)</option>
+                  <option value="random">🎲 Ngẫu nhiên sản phẩm</option>
+                  <option value="flash_sale">🔥 Flash Sale / Giảm Sốc (2x)</option>
+                  <option value="hot_demand">📈 Hot Demand / Tần Suất Hỏi (3x)</option>
+                </select>
+              </div>
+
+              <div class="autopin-btns-group" style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-primary" id="btnStartAutoPin" onclick="window.startAutoPinning()" style="height: 36px; padding: 0 16px;">▶ Bắt Đầu Ghim</button>
+                <button type="button" class="btn btn-danger" id="btnStopAutoPin" onclick="window.stopAutoPinning()" style="height: 36px; padding: 0 16px;" disabled>◼ Dừng Ghim</button>
+              </div>
+            </div>
+
+            <!-- Live Status Rail -->
+            <div class="autopin-status-rail" style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid var(--border-soft); font-size: 12px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <span>Trình duyệt: <span class="badge badge-cyan" id="badgePinStatus">Chờ khởi chạy</span></span>
+                <span id="activePinDetailText" style="color: var(--accent); font-weight: 600;">🔥 Sẵn sàng</span>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: var(--font-caption); color: var(--accent); cursor: pointer;" title="Tự động biến thiên thời gian chờ ngẫu nhiên giữa các lần ghim để chống lặp lại và chống bot">
+                  <input type="checkbox" id="chkPinRandomInterval" checked style="accent-color: var(--accent);">
+                  🎲 Random thời gian
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: var(--font-caption); color: var(--text-secondary); cursor: pointer;" title="Bật nếu giỏ hàng có nhiều hơn 10 sản phẩm">
+                  <input type="checkbox" id="chkPinAutoScroll" style="accent-color: var(--accent);">
+                  Tự cuộn
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: var(--font-caption); color: var(--accent); cursor: pointer;" title="Tự động phát câu kêu gọi chốt đơn vào chatbox mỗi khi đổi SP ghim">
+                  <input type="checkbox" id="chkPinAutoCallout" checked style="accent-color: var(--accent);">
+                  🔥 Callout chốt đơn
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: var(--font-caption); color: var(--success); cursor: pointer;" title="Nick vệ tinh tự động bắn comment khen / hỏi SP vừa được ghim">
+                  <input type="checkbox" id="chkPinSeedingSupport" checked style="accent-color: var(--success);">
+                  👥 Seeding trợ lực
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Timeline Workspace & TikTok Live Cart Dashboard -->
+          <div class="card" style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 14px 18px;">
+            <div class="card-header timeline-workspace-header" style="padding-bottom: 6px; border-bottom: 1px solid var(--border-soft); margin-bottom: 0;">
+              <!-- Sub-tab switchers -->
+              <div class="timeline-subtabs-group" style="display: flex; gap: 4px; background: var(--surface-2); padding: 3px; border-radius: var(--radius-md); border: 1px solid var(--border-soft);">
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 10px;" id="btnSubTabCartLive">🛒 Giỏ Hàng Live (CDP)</button>
+                <button class="btn btn-primary" style="height: 28px; font-size: 11px; padding: 0 10px;" id="btnSubTabVisual">📋 Timeline Trực Quan</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 10px;" id="btnSubTabPinAnalytics">📊 Nhiệt Kế & Analytics</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 10px;" id="btnSubTabJson">💻 Soạn Thảo JSON</button>
+              </div>
+
+              <!-- Action Tools for Timeline -->
+              <div class="timeline-actions-group" style="display: flex; gap: 6px;" id="timelineActionTools">
+                <button class="btn btn-primary" style="height: 28px; font-size: 11px; padding: 0 8px;" id="btnAddTimelineRow">+ Thêm Mốc</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 8px;" id="btnImportJson">📂 Nạp JSON</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 8px;" id="btnExportJson">💾 Lưu JSON</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 8px;" id="btnFormatJson">✨ Format</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 8px;" id="btnValidateJson">✅ Kiểm Tra</button>
+              </div>
+
+              <!-- Action Tools for Scraped Live Cart (Dynamic) -->
+              <div class="timeline-actions-group" style="display: none; gap: 6px;" id="cartLiveActionTools">
+                <button class="btn btn-primary" style="height: 28px; font-size: 11px; padding: 0 12px; background: var(--accent-gradient); color: var(--bg-app); font-weight: 700;" onclick="window.scrapeTikTokLiveCart()">⚡ Cào Dữ Liệu Lại</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 10px;" id="btnConvertCartToTimeline">📥 Tự Động Nạp Vào Timeline Ghim</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 10px;" id="btnSaveScrapedCartLocal">💾 Lưu Giỏ Hàng Này</button>
+                <button class="btn btn-danger" style="height: 28px; font-size: 11px; padding: 0 10px;" id="btnClearScrapedCart">🗑️ Xóa Bộ Nhớ</button>
+              </div>
+
+              <!-- Action Tools for Heatmap Analytics -->
+              <div style="display: none; gap: 6px;" id="pinAnalyticsActionTools">
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 10px;" onclick="window.refreshPinAnalytics()">🔄 Cập Nhật Nhiệt Kế</button>
+                <button class="btn btn-secondary" style="height: 28px; font-size: 11px; padding: 0 10px;" onclick="window.resetPinAnalytics()">🧹 Xóa Bộ Đếm</button>
+              </div>
+            </div>
+
+            <!-- View 0: Live Cart Dashboard Table (Scraped from shop.tiktok.com) -->
+            <div id="timelineCartLiveView" style="display: none; flex-direction: column; flex: 1; min-height: 0; gap: 8px;">
+              
+              <!-- Search & Summary Stats Bar -->
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 250px;">
+                  <input type="text" class="dta-input" id="inputSearchCartLive" placeholder="🔍 Tìm nhanh theo tên hoặc STT sản phẩm (VD: 1, Hoàng Đan, Hắc Đạo...)" style="height: 30px; font-size: var(--font-caption);">
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span class="badge badge-cyan" id="chipTotalCartProds">📦 0 Sản Phẩm</span>
+                  <span class="badge badge-warning" id="chipFlashSaleCount">🔥 0 Flash Sale</span>
+                  <span class="badge badge-green" id="chipTotalStockCount">📊 Tổng tồn: 0</span>
+                </div>
+              </div>
+
+              <div class="playlist-table-container" style="flex: 1;">
+                <table class="dta-table" id="scrapedCartTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 45px; text-align: center;">STT</th>
+                      <th>Tên Sản Phẩm</th>
+                      <th style="width: 110px; text-align: center;">Giá Ưu Đãi</th>
+                      <th style="width: 100px; text-align: center;">Giá Gốc</th>
+                      <th style="width: 100px; text-align: center;">Tồn Kho</th>
+                      <th style="width: 130px; text-align: center;">Chiến Dịch</th>
+                      <th style="width: 100px; text-align: center;">Hành Động</th>
+                    </tr>
+                  </thead>
+                  <tbody id="scrapedCartTableBody">
+                    <tr>
+                      <td colspan="7" style="text-align: center; color: var(--text-tertiary); padding: 24px;">
+                        Chưa có dữ liệu giỏ hàng. Nhấn nút <strong>"⚡ Cào Giỏ Hàng Live (CDP)"</strong> để trích xuất tự động từ trang TikTok Live Streamer Dashboard.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="playlist-summary-footer">
+                <span>Tổng số sản phẩm giỏ hàng: <strong id="scrapedCartTotalCount" style="color: var(--accent);">0 sản phẩm</strong></span>
+                <span>Bộ nhớ AI: <strong id="scrapedCartAiSyncStatus" style="color: var(--success);">Sẵn sàng nạp vào Qwen Local</strong></span>
+              </div>
+            </div>
+
+            <!-- View 1: Visual Timeline Table -->
+            <div id="timelineVisualView" style="display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 8px;">
+              <div class="playlist-table-container" style="flex: 1;">
+                <table class="dta-table" id="timelineTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 45px; text-align: center;">STT</th>
+                      <th style="width: 120px; text-align: center;">Mốc Thời Gian</th>
+                      <th style="width: 100px; text-align: center;">Mã/STT SP</th>
+                      <th style="width: 30%;">Tên Sản Phẩm</th>
+                      <th style="width: 35%;">Từ Khóa Nhận Diện</th>
+                      <th style="width: 110px; text-align: center;">Trạng Thái</th>
+                      <th style="width: 60px; text-align: center;">Xóa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="timelineTableBody">
+                    <!-- Dynamic rows rendered via app.js -->
+                  </tbody>
+                </table>
+              </div>
+              <div class="playlist-summary-footer">
+                <span>Tổng số sự kiện: <strong id="timelineEventCount" style="color: var(--accent);">3 mốc</strong></span>
+                <span>Thời gian video đồng bộ: <strong id="timelineSyncStatus" style="color: var(--success);">Đã liên kết Video Player</strong></span>
+              </div>
+            </div>
+
+            <!-- View 2: Raw JSON Textarea -->
+            <div id="timelineJsonView" style="display: none; flex-direction: column; flex: 1; min-height: 0; gap: 8px;">
+              <textarea class="dta-input" id="jsonScriptTextarea" style="flex: 1; font-family: var(--font-code); font-size: 12px; line-height: 1.5; color: var(--accent); resize: none; padding: 12px; background: var(--surface-2);"></textarea>
+            </div>
+
+            <!-- View 3: Heatmap & Live Cart Analytics -->
+            <div id="timelinePinAnalyticsView" style="display: none; flex-direction: column; flex: 1; min-height: 0; gap: 10px;">
+              <!-- Analytics Summary Stat Cards -->
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                <div class="card" style="padding: 10px; background: var(--surface-2); border-color: var(--border-soft); display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: 11px; color: var(--text-tertiary);">Tổng Lượt Ghim Phiên Live</span>
+                  <span style="font-size: 18px; font-weight: 700; color: var(--accent);" id="statTotalPins">0 lượt</span>
+                </div>
+                <div class="card" style="padding: 10px; background: var(--surface-2); border-color: var(--border-soft); display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: 11px; color: var(--text-tertiary);">Tổng Lượt Khách Hỏi SP</span>
+                  <span style="font-size: 18px; font-weight: 700; color: var(--success);" id="statTotalInquiries">0 câu hỏi</span>
+                </div>
+                <div class="card" style="padding: 10px; background: var(--surface-2); border-color: var(--border-soft); display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: var(--font-caption); color: var(--text-tertiary);">🔥 SP Được Hỏi Nhiều Nhất</span>
+                  <span style="font-size: var(--font-h3); font-weight: 700; color: var(--danger); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="statTopHotProduct">Chưa có dữ liệu</span>
+                </div>
+                <div class="card" style="padding: 10px; background: var(--surface-2); border-color: var(--border-soft); display: flex; flex-direction: column; gap: 4px;">
+                  <span style="font-size: var(--font-caption); color: var(--text-tertiary);">Chế Độ Ghim Đang Chạy</span>
+                  <span style="font-size: var(--font-h3); font-weight: 700; color: var(--accent);" id="statActivePinModeName">Cân Bằng Ping-Pong</span>
+                </div>
+              </div>
+
+              <!-- Heatmap Product Table -->
+              <div class="playlist-table-container" style="flex: 1;">
+                <table class="dta-table" id="pinAnalyticsTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 45px; text-align: center;">STT</th>
+                      <th>Tên Sản Phẩm</th>
+                      <th style="width: 100px; text-align: center;">Giá Bán</th>
+                      <th style="width: 110px; text-align: center;">Số Lần Đã Ghim</th>
+                      <th style="width: 110px; text-align: center;">Lượt Khách Hỏi</th>
+                      <th style="width: 140px; text-align: center;">Độ Hot (Nhiệt kế)</th>
+                      <th style="width: 90px; text-align: center;">Ghim Ngay</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pinAnalyticsTableBody">
+                    <tr>
+                      <td colspan="7" style="text-align: center; color: var(--text-tertiary); padding: 24px;">
+                        Đang thu thập dữ liệu tương tác trực tiếp trong phiên Live...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="playlist-summary-footer">
+                <span>💡 <em>Mẹo bán hàng: Bật chế độ "📈 Ưu Tiên Nhu Cầu Hỏi" để AI tự động đẩy những mã trên đầu nhiệt kế lên live thường xuyên hơn.</em></span>
+                <button class="btn btn-secondary" style="height: 24px; font-size: var(--font-caption); padding: 0 8px;" onclick="window.refreshPinAnalytics()">🔄 Cập Nhật Ngay</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ================================================================
+             TAB 3: ĐỘI QUÂN SEEDING VỆ TINH AI (VIRTUAL CROWD)
+             ================================================================ -->
+        <div id="tab3" class="view-panel">
+          
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 class="page-title">👥 Đội Quân Seeding Vệ Tinh AI</h1>
+              <p class="page-description">Tự động sinh bình luận mồi AI & tương tác giữ mắt Live</p>
+            </div>
+            <div class="page-actions-group">
+              <span class="badge badge-green" id="badgeSeedingStatus">Seeding: Sẵn sàng</span>
+            </div>
+          </div>
+
+          <!-- 2 Columns Grid: 48% Left Config & AI Prompt + 52% Right Live Feed & Quick Test -->
+          <div class="tab-two-column-layout" style="display: grid; grid-template-columns: 48% 1fr; gap: 14px; flex: 1;">
+            
+            <!-- Left: Seeding Setup & AI Prompt Editor -->
+            <div class="tab-left-col">
+              
+              <!-- Card 1: Account Setup -->
+              <div class="card" style="display: flex; flex-direction: column; gap: 6px;">
+                <div class="card-header">
+                  <span class="card-title">⚙️ TÀI KHOẢN VỆ TINH & TẦN SUẤT</span>
+                  <span class="badge badge-cyan" id="badgeSatelliteCount">0 tài khoản</span>
+                </div>
+
+                <div>
+                  <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">Kênh TikTok Live:</label>
+                  <input type="text" class="dta-input" id="inputSeedingTargetUser" value="@dta_studio" placeholder="@username" style="height: 28px;">
+                </div>
+
+                <div>
+                  <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">Nick Vệ Tinh (Tên|Cookie hoặc để trống dùng Bot AI):</label>
+                  <textarea class="dta-input" id="inputSatelliteAccounts" rows="2" style="font-family: var(--font-code); font-size: 11px; resize: vertical; min-height: 42px; width: 100%; box-sizing: border-box;" placeholder="Nick_1|cookie_string_1&#10;Nick_2|cookie_string_2&#10;(Để trống để dùng Bot Seeding AI)"></textarea>
+                </div>
+
+                <div class="form-row-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div>
+                    <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">Độ trễ tối thiểu (s):</label>
+                    <input type="number" class="dta-input" id="inputSeedingMinSec" value="15" min="5" max="120" style="height: 28px;">
+                  </div>
+                  <div>
+                    <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">Độ trễ tối đa (s):</label>
+                    <input type="number" class="dta-input" id="inputSeedingMaxSec" value="45" min="10" max="300" style="height: 28px;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: AI Prompt Editor & Custom Templates -->
+              <div class="card" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+                <div class="card-header">
+                  <span class="card-title">🧠 KỊCH BẢN & PROMPT SEEDING AI</span>
+                  <span class="badge badge-green">Lưu Local</span>
+                </div>
+
+                <div class="form-row-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div>
+                    <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">🇻🇳 Vùng Miền:</label>
+                    <select class="dta-select" id="selectSeedingRegionDialect" style="height: 28px;">
+                      <option value="south" selected>🌴 Miền Nam / Tây</option>
+                      <option value="north">🏙️ Miền Bắc</option>
+                      <option value="central">🏖️ Miền Trung</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">🎭 Phong Cách:</label>
+                    <select class="dta-select" id="selectSeedingToneStyle" style="height: 28px;">
+                      <option value="genz_casual" selected>🔥 Gen Z Cộc Lốc</option>
+                      <option value="angler_pro">🎣 Cần Thủ Đam Mê</option>
+                      <option value="fomo_sale">⚡ Săn Deal & FOMO</option>
+                      <option value="humorous">😄 Hài Hước Duyên Dáng</option>
+                      <option value="polite">👔 Lịch Sự Chuẩn Mực</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label class="switch-container" style="padding: 0;">
+                    <span class="switch-title" style="font-size: 11px;">🔤 Viết tắt & Tiếng lóng tự nhiên</span>
+                    <div class="dta-switch"><input type="checkbox" id="chkSeedingUseSlangs" checked><span class="switch-slider"></span></div>
+                  </label>
+                </div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0; gap: 2px;">
+                  <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">Prompt chỉ đạo AI sinh bình luận:</label>
+                  <textarea class="dta-input" id="inputSeedingAiPrompt" style="font-size: var(--font-caption); line-height: 1.35; resize: vertical; flex: 1; min-height: 80px; width: 100%; box-sizing: border-box;" placeholder="Ví dụ: Đóng vai khách mua hàng, bình luận ngắn gọn hỏi giá, chất liệu, xin mã freeship..."></textarea>
+                </div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0; gap: 2px;">
+                  <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">Câu Seeding mẫu cố định:</label>
+                  <textarea class="dta-input" id="inputSeedingCustomTemplates" style="font-size: var(--font-caption); line-height: 1.35; resize: vertical; flex: 1; min-height: 70px; width: 100%; box-sizing: border-box;" placeholder="Mẫu số 1 còn freeship không shop?&#10;Mình vừa nhận hàng, chất xịn lắm mn ơi!"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto;">
+                  <button type="button" class="btn btn-primary" id="btnAutoGenerateCartSeeding" onclick="window.generateCartSeedingScripts()" style="flex: 1; height: 28px; font-size: 11px; background: var(--accent-gradient); color: var(--bg-app); font-weight: 700;">✨ Tạo Kịch Bản Từ 24 SP Thật</button>
+                  <button type="button" class="btn btn-secondary" id="btnSaveSeedingConfigLocal" style="border-color: var(--accent); color: var(--accent); height: 28px; font-size: 11px;">💾 Lưu</button>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 2px; border-top: 1px solid var(--border-soft); padding-top: 6px;">
+                  <button type="button" class="btn btn-primary" id="btnStartSeeding" onclick="window.startSatelliteSeeding()" style="flex: 1; height: 32px;">▶ Bắt Đầu Seeding</button>
+                  <button type="button" class="btn btn-danger" id="btnStopSeeding" onclick="window.stopSatelliteSeeding()" style="flex: 1; height: 32px;" disabled>◼ Dừng Seeding</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right: Real-time Seeding Stream Feed & Quick Test -->
+            <div class="card" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; height: 100%;">
+              <div class="card-header">
+                <span class="card-title">💬 NHẬT KÝ SEEDING THỜI GIAN THỰC</span>
+                <span class="badge badge-cyan" id="badgeSeedingCount">Đã gửi: 0</span>
+              </div>
+
+              <div class="seeding-bubble-log" id="seedingLiveLogBox" style="flex: 1; min-height: 0; height: 100%;">
+                <div class="seeding-bubble-item">
+                  <span class="seeding-bubble-author">👥 [Đội Quân Seeding]</span>
+                  <span class="seeding-bubble-text">Hệ thống Seeding sẵn sàng. Nhấn "Bắt Đầu Seeding Vệ Tinh" để kích hoạt bình luận mồi tự động.</span>
+                  <span class="seeding-bubble-time">DTA Studio AI</span>
+                </div>
+              </div>
+
+              <!-- Quick Test Comment Bar -->
+              <div style="display: flex; gap: 8px; border-top: 1px solid var(--border-soft); padding-top: 8px;">
+                <input type="text" class="dta-input" id="inputQuickTestComment" placeholder="Nhập câu bình luận muốn bắn thử ngay..." style="flex: 1;">
+                <button type="button" class="btn btn-secondary" id="btnSendQuickTestComment" onclick="window.sendQuickTestComment()" style="border-color: var(--accent); color: var(--accent); white-space: nowrap;">⚡ Bắn Thử Ngay</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ================================================================
+             TAB 4: HOST LIVE AI CHATBOT (TRẢ LỜI KHÁCH XEM THEO GIỎ HÀNG)
+             ================================================================ -->
+        <div id="tab4" class="view-panel">
+          
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 class="page-title">💬 Host Live AI Chatbot</h1>
+              <p class="page-description">Trợ lý AI trả lời bình luận khách xem theo giỏ hàng thực tế</p>
+            </div>
+            <div class="page-actions-group">
+              <span class="badge badge-green" id="badgeHostChatStatus">Host AI: Sẵn sàng</span>
+            </div>
+          </div>
+
+          <!-- 2 Columns Grid: 48% Left Config & AI Prompt + 52% Right 2-Way Live Chat Feed -->
+          <div class="tab-two-column-layout" style="display: grid; grid-template-columns: 48% 1fr; gap: 14px; flex: 1;">
+            
+            <!-- Left: Host AI Configuration & Sales Prompt -->
+            <div class="tab-left-col" style="display: flex; flex-direction: column; gap: 12px;">
+              
+              <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="card-header">
+                  <span class="card-title">⚙️ THIẾT LẬP TÀI KHOẢN STREAMER</span>
+                  <span class="badge badge-cyan">Streamer Live</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: flex-end;">
+                  <div>
+                    <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 4px;">Kênh TikTok Live (@username):</label>
+                    <input type="text" class="dta-input" id="inputHostTikTokUser" value="@dta_studio" placeholder="@username">
+                  </div>
+                  <label class="switch-container" style="padding-bottom: 6px;">
+                    <span class="switch-title" style="font-size: 11px;">Tự gõ Chatbox</span>
+                    <div class="dta-switch"><input type="checkbox" id="chkHostAutoTypeChatbox" checked><span class="switch-slider"></span></div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Card: Dynamic Sales Prompt & Preset Manager -->
+              <div class="card" style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border-soft);">
+                  <span class="card-title">🧠 KỊCH BẢN & PROMPT TƯ VẤN AI</span>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button type="button" class="btn btn-secondary" id="btnSaveHostPreset" onclick="window.saveCurrentHostPreset()" style="height: 24px; font-size: 11px; padding: 0 8px; border-color: var(--accent); color: var(--accent);" title="Lưu lại toàn bộ nội dung prompt vào Preset hiện tại">💾 Lưu Preset</button>
+                  </div>
+                </div>
+
+                <!-- Preset Management Bar -->
+                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                  <span style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">📁 Preset Kịch Bản:</span>
+                  <select class="dta-select" id="selectHostPromptPreset" style="flex: 1; min-width: 140px; height: 28px; font-size: 11px;">
+                    <option value="default_sales">⭐ Bán Hàng Trực Tiếp (Mặc Định)</option>
+                  </select>
+                  <button type="button" class="btn btn-secondary" id="btnAddNewPreset" onclick="window.addNewHostPresetModal()" style="height: 28px; font-size: 11px; padding: 0 8px;" title="Thêm một Preset kịch bản mới">➕ Thêm</button>
+                  <button type="button" class="btn btn-secondary" id="btnRenamePreset" onclick="window.renameHostPresetModal()" style="height: 28px; font-size: 11px; padding: 0 8px;" title="Đổi tên Preset hiện tại">✏️ Sửa Tên</button>
+                  <button type="button" class="btn btn-secondary" id="btnDeletePreset" onclick="window.deleteHostPresetAction()" style="height: 28px; font-size: 11px; padding: 0 8px; color: var(--danger);" title="Xóa Preset này">🗑️ Xóa</button>
+                </div>
+
+                <!-- Template Variables Toolbar & Quick Insert Chips -->
+                <div style="display: flex; flex-direction: column; gap: 4px; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-soft); border-radius: var(--radius-sm); padding: 6px 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
+                    <span style="font-size: 10.5px; color: var(--text-tertiary);">✨ Dữ liệu biến động tự động (Bấm để chèn hoặc sửa):</span>
+                  </div>
+                  <div style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center;">
+                    <button type="button" class="btn btn-secondary" onclick="window.insertPromptVariable('{{Thong tin nen tang}}')" style="height: 24px; font-size: 10.5px; padding: 0 6px; border-color: var(--accent); color: var(--accent);" title="Chèn biến Thông tin nền tảng vào vị trí con trỏ">+ &#123;&#123;Thong tin nen tang&#125;&#125;</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.openTextEditorModal('platform_info')" style="height: 24px; font-size: 10.5px; padding: 0 6px;" title="Chỉnh sửa nội dung Thông tin nền tảng (Giao hàng, Bảo hành...)">📄 Sửa Nền Tảng</button>
+
+                    <span style="color: var(--border-soft);">|</span>
+
+                    <button type="button" class="btn btn-secondary" onclick="window.insertPromptVariable('{{List san pham}}')" style="height: 24px; font-size: 10.5px; padding: 0 6px; border-color: var(--success); color: var(--success);" title="Chèn biến Danh sách sản phẩm cào về">+ &#123;&#123;List san pham&#125;&#125;</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.previewCartProductsVariable()" style="height: 24px; font-size: 10.5px; padding: 0 6px;" title="Xem dữ liệu danh sách sản phẩm sau khi cào giỏ hàng">📦 Xem DS SP</button>
+
+                    <span style="color: var(--border-soft);">|</span>
+
+                    <button type="button" class="btn btn-secondary" onclick="window.insertPromptVariable('{{Quy tac}}')" style="height: 24px; font-size: 10.5px; padding: 0 6px; border-color: var(--warning); color: var(--warning);" title="Chèn biến Quy tắc bán hàng vào vị trí con trỏ">+ &#123;&#123;Quy tac&#125;&#125;</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.openTextEditorModal('rules')" style="height: 24px; font-size: 10.5px; padding: 0 6px;" title="Chỉnh sửa nội dung Quy tắc (Những điều được và không được làm)">📋 Sửa Quy Tắc</button>
+                  </div>
+                </div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0; gap: 4px;">
+                  <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 2px;">Prompt chỉ đạo Host Chatbot (Toàn quyền cấu hình):</label>
+                  <textarea class="dta-input" id="inputHostAiPrompt" style="font-size: 11.5px; line-height: 1.4; resize: vertical; flex: 1; min-height: 140px; width: 100%; box-sizing: border-box;" placeholder="Nhập kịch bản bán hàng và chỉ đạo cho AI..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 8px; border-top: 1px solid var(--border-soft); padding-top: 8px; margin-top: auto;">
+                  <button type="button" class="btn btn-primary" id="btnStartHostChat" onclick="window.startHostChatbot()" style="flex: 1; height: 34px;">▶ Bắt Đầu Host Chatbot</button>
+                  <button type="button" class="btn btn-danger" id="btnStopHostChat" onclick="window.stopHostChatbot()" style="flex: 1; height: 34px;" disabled>◼ Dừng Chatbot</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right: 2-Way Live Chat Feed & Instant Reply Tester -->
+            <div class="card" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; height: 100%;">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span class="card-title">💬 NHẬT KÝ PHẢN HỒI AI & TRẠNG THÁI KHÁCH HÀNG</span>
+                  <span class="badge badge-green" style="font-size: 10px; height: 20px; padding: 0 6px;" title="Tự động nhận diện khách đã trả lời rồi, chống vòng lặp 2-3-4 lần">🛡️ Chống Rep Lặp</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <span class="badge badge-primary" style="font-size: 10px; height: 20px; padding: 0 6px; white-space: nowrap;">🔒 Khóa 95 ký tự</span>
+                  <span style="font-size: 11px; color: var(--success); white-space: nowrap;" id="hostChatStats">Đã trả lời: 0 câu | ~45ms</span>
+                </div>
+              </div>
+
+              <!-- Live Chat Feed Box -->
+              <div class="seeding-bubble-log" id="hostChatLogBox" style="flex: 1; min-height: 0; height: 100%;">
+                <div class="seeding-bubble-item">
+                  <span class="seeding-bubble-author">🤖 [Hệ Thống DTA]</span>
+                  <span class="seeding-bubble-text">Khởi động Host AI Chatbot. Đang theo dõi bình luận khách xem và chuẩn bị phản hồi tự động theo giỏ hàng...</span>
+                  <span class="seeding-bubble-time">DTA AI</span>
+                </div>
+              </div>
+
+              <!-- Quick Product & Question Helpers -->
+              <div style="display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border-soft); padding-top: 8px;">
+                <!-- Product Selector Bar -->
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">📦 Chọn SP thật:</span>
+                  <select class="dta-select" id="selectHostCartProduct" onchange="window.onHostProductSelectChange()" style="flex: 1; height: 28px; font-size: 11px;">
+                    <option value="">(Chọn sản phẩm trong 24 SP để test nhanh...)</option>
+                  </select>
+                </div>
+
+                <!-- 1-Click Quick Question Suggestion Chips -->
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;" id="quickQuestionChipsContainer">
+                  <button type="button" class="btn btn-secondary" style="height: 24px; font-size: var(--font-caption); padding: 0 8px;" onclick="window.setQuickHostQuestion('Mã 1 còn hàng không shop, giá bao nhiêu?')">💡 Hỏi SP #1</button>
+                  <button type="button" class="btn btn-secondary" style="height: 24px; font-size: var(--font-caption); padding: 0 8px;" onclick="window.setQuickHostQuestion('Cây số 3 đợt này có khuyến mãi gì vậy shop?')">💡 Hỏi SP #3</button>
+                  <button type="button" class="btn btn-secondary" style="height: 24px; font-size: var(--font-caption); padding: 0 8px;" onclick="window.setQuickHostQuestion('Cần câu mã 16 tải cá được mấy kg vậy anh?')">💡 Hỏi SP #16</button>
+                  <button type="button" class="btn btn-secondary" style="height: 24px; font-size: var(--font-caption); padding: 0 8px;" onclick="window.setQuickHostQuestion('Shop có freeship và giao hàng trong mấy ngày ạ?')">💡 Giao Hàng</button>
+                  <button type="button" class="btn btn-secondary" style="height: 24px; font-size: var(--font-caption); padding: 0 8px;" onclick="window.setQuickHostQuestion('Hàng chính hãng có phiếu bảo hành đổi trả không shop?')">💡 Bảo Hành</button>
+                </div>
+
+                <!-- Instant Test Question Bar -->
+                <div style="display: flex; gap: 8px; margin-top: 2px;">
+                  <input type="text" class="dta-input" id="inputTestCustomerQuestion" placeholder="Nhập câu hỏi giả lập để test AI (VD: Mã số 1 giá bao nhiêu?)..." style="flex: 1; height: 32px; font-size: var(--font-body);">
+                  <button type="button" class="btn btn-secondary" id="btnSendTestHostQuestion" onclick="window.testHostChatbotReply()" style="border-color: var(--accent); color: var(--accent); white-space: nowrap; height: 32px; font-size: var(--font-body);">⚡ Thử AI Trả Lời</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ================================================================
+             TAB 5: TRUNG TÂM AI QWEN LOCAL & QUẢN TRỊ HỆ THỐNG
+             ================================================================ -->
+        <div id="tab5" class="view-panel">
+          
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 class="page-title">⚡ Trung Tâm AI Qwen & Cài Đặt</h1>
+              <p class="page-description">Vận hành AI Offline trên GPU, quản trị VRAM & Captcha</p>
+            </div>
+            <div class="page-actions-group">
+              <span class="badge badge-cyan" id="badgeGpuServerState">AI Server: CHƯA BẬT</span>
+            </div>
+          </div>
+
+          <!-- 2 Columns Grid: 50% Left (Model & GPU) + 50% Right (System & Captcha & Info) -->
+          <div class="tab-two-column-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1;">
+            
+            <!-- Left: Model GGUF Lifecycle & Hardware Telemetry -->
+            <div class="tab-left-col" style="display: flex; flex-direction: column; gap: 14px;">
+              
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">📦 QUẢN LÝ MODEL GGUF & VRAM GPU</span>
+                  <span class="badge badge-green" id="badgeModelFileStatus">Model: Chưa kiểm tra</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <div>
+                    <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 4px;">Chọn Mô Hình Qwen:</label>
+                    <select class="dta-select" id="selectQwenModelKey">
+                      <option value="Qwen2.5-7B-Instruct-Q4_K_M" selected>Qwen 2.5 7B Instruct (Q4_K_M) - Chuẩn (~4.8GB VRAM)</option>
+                      <option value="Qwen2.5-1.5B-Instruct-Q4_K_M">Qwen 2.5 1.5B Instruct (Q4_K_M) - Nhẹ (~1.2GB VRAM)</option>
+                      <option value="Qwen2.5-3B-Instruct-Q4_K_M">Qwen 2.5 3B Instruct (Q4_K_M) - Laptop (~2.2GB VRAM)</option>
+                    </select>
+                  </div>
+
+                  <!-- Hero Action Cards & Secondary Control Grid -->
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="hero-action-card primary" id="btnStartAiGpuServer" onclick="window.startAiGpuServer()" title="Nạp toàn bộ mô hình Qwen vào VRAM Card màn hình để kích hoạt AI phản hồi siêu tốc">
+                      <div class="hero-action-left">
+                        <span class="hero-action-icon">🚀</span>
+                        <div class="hero-action-text">
+                          <span class="hero-action-title">Khởi Động Server AI (Nạp GPU)</span>
+                          <span class="hero-action-subtitle">Nạp model Qwen vào VRAM Card đồ họa</span>
+                        </div>
+                      </div>
+                      <span class="badge badge-cyan" id="badgeHeroServerStatus">Standby</span>
+                    </div>
+
+                    <div class="hero-action-card warning" id="btnBenchmarkAiSpeed" onclick="window.benchmarkAiSpeed()" title="Đo tốc độ sinh từ thực tế của AI trên card GPU của bạn">
+                      <div class="hero-action-left">
+                        <span class="hero-action-icon">⚡</span>
+                        <div class="hero-action-text">
+                          <span class="hero-action-title">Benchmark Tốc Độ AI (ms)</span>
+                          <span class="hero-action-subtitle">Đo độ trễ phản hồi & tốc độ sinh từ</span>
+                        </div>
+                      </div>
+                      <span class="badge badge-yellow" id="badgeHeroBenchmarkResult">Sẵn Sàng</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 2px;">
+                      <button type="button" class="btn btn-secondary" id="btnCheckAiModel" onclick="window.checkAiModel()" title="Kiểm tra xem tệp mô hình đã tải về máy tính và sẵn sàng hay chưa">🔍 Kiểm Tra</button>
+                      <button type="button" class="btn btn-secondary" id="btnDownloadAiModel" onclick="window.downloadAiModel()" style="border-color: var(--accent); color: var(--accent);" title="Tự động tải file mô hình Qwen GGUF từ Hugging Face">⬇️ Tải GGUF</button>
+                      <button type="button" class="btn btn-danger" id="btnStopAiGpuServer" onclick="window.stopAiGpuServer()" disabled title="Dừng máy chủ AI và giải phóng 100% VRAM GPU">🛑 Dọn VRAM</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                      <button type="button" class="btn btn-secondary" id="btnOpenModelFolder" onclick="window.openModelFolder()" title="Mở thư mục lưu trữ Model AI trên máy tính để quản lý tệp">📁 Thư Viện Model</button>
+                      <button type="button" class="btn btn-secondary" id="btnDeleteAiModel" onclick="window.deleteAiModel()" style="color: var(--danger); border-color: rgba(255, 77, 109, 0.4);" title="Xóa tệp Model AI đã chọn để giải phóng ổ cứng hoặc cài đặt model khác">🗑️ Xóa Model Này</button>
+                    </div>
+                  </div>
+
+                  <!-- Download Progress Box (Dynamic) -->
+                  <div class="model-progress-box" id="modelDownloadBox" style="display: none;">
+                    <div class="model-progress-header">
+                      <span id="dlModelTitle">Đang tải Qwen GGUF Model từ Hugging Face...</span>
+                      <strong id="dlModelPct" style="color: var(--accent);">0%</strong>
+                    </div>
+                    <div class="model-progress-track">
+                      <div class="model-progress-bar" id="dlProgressBar"></div>
+                    </div>
+                    <div class="model-progress-meta">
+                      <span id="dlMetaBytes">Đã tải: 0.0 GB / 4.8 GB</span>
+                      <span id="dlMetaSpeed">Tốc độ: 0.0 MB/s</span>
+                      <span id="dlMetaEta">ETA: 0s</span>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="btnCancelDownload" onclick="window.cancelDownloadAiModel()" style="height: 24px; font-size: var(--font-caption); align-self: flex-end;">Hủy tải</button>
+                  </div>
+
+                  <!-- GPU Hardware Telemetry Card with Overdrive Particle Flow -->
+                  <div class="gpu-particle-wrapper">
+                    <canvas id="gpuParticleCanvas" class="gpu-particle-canvas"></canvas>
+                    <div class="gpu-stat-grid">
+                      <div class="gpu-stat-item">
+                        <span class="gpu-stat-label">Card GPU</span>
+                        <span class="gpu-stat-value" id="gpuTeleName" style="font-size: 11px;">Đang quét...</span>
+                      </div>
+                      <div class="gpu-stat-item">
+                        <span class="gpu-stat-label">VRAM Sử Dụng</span>
+                        <span class="gpu-stat-value" id="gpuTeleVram">0.0 GB</span>
+                      </div>
+                      <div class="gpu-stat-item">
+                        <span class="gpu-stat-label">Nhiệt Độ</span>
+                        <span class="gpu-stat-value" id="gpuTeleTemp">-- °C</span>
+                      </div>
+                      <div class="gpu-stat-item">
+                        <span class="gpu-stat-label">CUDA Engine</span>
+                        <span class="gpu-stat-value" id="gpuTeleCuda" style="color: var(--success);">READY</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Card: TikTok Account & Cookie Bridge (Đã chuyển sang cột trái) -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">🍪 TÀI KHOẢN TIKTOK LIVE</span>
+                  <span class="badge badge-green" id="badgeTab5TikTokStatus">Sẵn Sàng</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                  <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+                    Đăng nhập TikTok trên Chrome để tự động đồng bộ Cookies và nạp luồng Live 1080p.
+                  </p>
+                  <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-primary" onclick="window.openTikTokLoginModal()" style="flex: 1;" title="Mở Google Chrome để đăng nhập và tự động đồng bộ Cookies">🔑 Đăng Nhập (Chrome)</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.clearTikTokCookiesAction()" style="flex: 0.6;" title="Đăng xuất tài khoản đã lưu">🗑 Đăng Xuất</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card: Runtime Environment with Rich Tooltips -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">🖥️ MÔI TRƯỜNG HỆ THỐNG</span>
+                  <span class="badge badge-cyan" title="Kiến trúc ứng dụng Next-Gen AI">v2.2.0 AI</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                  <div title="Phiên bản Desktop DTA AutoLive">App: <strong>2.2.0 AI</strong></div>
+                  <div title="Mô hình LLM Offline">AI Core: <strong>Qwen Local GPU</strong></div>
+                  <div title="Môi trường JavaScript">Node.js: <strong>20.18.0</strong></div>
+                  <div title="Dịch vụ Python nền">Python: <strong>3.11 Daemon</strong></div>
+                  <div title="Cổng kết nối nội bộ">WebSocket: <strong>:8765</strong></div>
+                  <div title="Cổng kết nối Google Chrome">CDP: <strong>Chrome 9222</strong></div>
+                  <div title="Driver camera ảo">Camera: <strong>DTA Camera</strong></div>
+                  <div title="Driver âm thanh ảo">Audio: <strong>DTA Audio</strong></div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right: Captcha & DTA Studio Information -->
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              
+              <!-- Card: Captcha & DeepSeek AI Keys -->
+              <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                  <span class="card-title">🧩 CẤU HÌNH API & BỘ NÃO AI</span>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <span class="badge badge-cyan" id="badgeDeepSeekBalance" title="Số dư tài khoản DeepSeek V3 thực tế">DeepSeek: --</span>
+                    <span class="badge badge-green" id="badgeCreditsCount" title="Số Credits giải Captcha TikTok còn lại">SadCaptcha: --</span>
+                  </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <!-- Section A: DeepSeek Cloud AI Engine -->
+                  <div style="background: rgba(0, 255, 255, 0.03); border: 1px solid rgba(0, 255, 255, 0.15); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 11.5px; font-weight: 700; color: var(--accent);">🧠 ĐỘNG CƠ TRẢ LỜI & DEEPSEEK V3</span>
+                      <span style="font-size: 10px; color: var(--text-tertiary);">Model 671B MoE</span>
+                    </div>
+
+                    <div>
+                      <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 3px;">Bộ Não AI Phản Hồi (AI Provider):</label>
+                      <select class="dta-select" id="selectAiProvider" style="font-size: 11.5px; height: 30px; width: 100%;">
+                        <option value="auto" selected>🚀 Song Kiếm Hợp Bích (DeepSeek V3 + Qwen Local)</option>
+                        <option value="deepseek">🧠 DeepSeek V3 (Cloud API - Siêu Trí Tuệ 671B)</option>
+                        <option value="qwen">⚡ Qwen 2.5 7B (Local GPU - Offline Siêu Tốc)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 3px;">DeepSeek API Key:</label>
+                      <div style="position: relative;">
+                        <input type="password" class="dta-input" id="inputDeepSeekKey" placeholder="sk-..." style="padding-right: 36px; height: 30px; font-size: 11.5px;">
+                        <button class="btn-icon-clear" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-tertiary); cursor: pointer;" onclick="const el = document.getElementById('inputDeepSeekKey'); el.type = el.type === 'password' ? 'text' : 'password';">👁️</button>
+                      </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" id="btnTestDeepSeekKey" onclick="window.testDeepSeekApiKeyAction()" style="height: 28px; font-size: 11px; border-color: var(--accent); color: var(--accent); align-self: flex-end; padding: 0 12px;">⚡ Test DeepSeek & Xem Số Dư</button>
+                  </div>
+
+                  <!-- Section B: SadCaptcha TikTok Solver Engine -->
+                  <div style="background: rgba(0, 255, 128, 0.03); border: 1px solid rgba(0, 255, 128, 0.15); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 11.5px; font-weight: 700; color: var(--success);">🧩 TỰ ĐỘNG GIẢI CAPTCHA (SADCAPTCHA)</span>
+                      <label class="switch-container" title="Bật tự động quét và giải Captcha TikTok ngầm">
+                        <div class="dta-switch"><input type="checkbox" id="chkAutoScanCaptcha" checked><span class="switch-slider"></span></div>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label style="font-size: var(--font-caption); color: var(--text-secondary); display: block; margin-bottom: 3px;">SadCaptcha API Key:</label>
+                      <div style="position: relative;">
+                        <input type="password" class="dta-input" id="inputSadCaptchaKey" value="sadcaptcha_lic_8899aabbcc" style="padding-right: 36px; height: 30px; font-size: 11.5px;">
+                        <button class="btn-icon-clear" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-tertiary); cursor: pointer;" onclick="const el = document.getElementById('inputSadCaptchaKey'); el.type = el.type === 'password' ? 'text' : 'password';">👁️</button>
+                      </div>
+                    </div>
+
+                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                      <button type="button" class="btn btn-secondary" id="btnManualSolveCaptcha" onclick="window.triggerManualCaptchaSolveAction()" style="height: 28px; font-size: 11px; padding: 0 10px;" title="Thử tìm và trượt Captcha ngay lập tức">⚡ Giải Thử</button>
+                      <button type="button" class="btn btn-secondary" id="btnTestSadCaptchaKey" onclick="window.testSadCaptchaApiKeyAction()" style="height: 28px; font-size: 11px; border-color: var(--success); color: var(--success); padding: 0 12px;" title="Kiểm tra key và lấy số credits thực tế">🔑 Test SadCaptcha</button>
+                    </div>
+                  </div>
+
+                  <!-- Global Save Button -->
+                  <button type="button" class="btn btn-primary" id="btnSaveApiConfig" onclick="window.saveApiConfigurationAction()" style="height: 36px; font-weight: 700;">💾 Lưu Cấu Hình API Keys</button>
+                </div>
+              </div>
+
+              <!-- Card: DTA Studio Brand & Contact -->
+              <div class="card" style="flex: 1;">
+                <div class="card-header">
+                  <span class="card-title">👑 BẢN QUYỀN & LIÊN HỆ</span>
+                  <span class="badge badge-green">DTA Studio</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; line-height: 1.6;">
+                  <div><b>Đơn vị:</b> DTA Studio</div>
+                  <div><b>Chủ sở hữu:</b> Đức Trường AI</div>
+                  <div><b>Hotline / Zalo:</b> <a href="tel:0962775506" style="color: var(--accent); text-decoration: none;">0962.775.506</a></div>
+                  <div><b>Email:</b> <a href="mailto:ductruong.onl@gmail.com" style="color: var(--accent); text-decoration: none;">ductruong.onl@gmail.com</a></div>
+                  <div><b>Website:</b> <a href="https://dta-studio.vercel.app/" target="_blank" style="color: var(--accent); text-decoration: none;">dta-studio.vercel.app</a></div>
+                  <div><b>Facebook:</b> <a href="https://www.facebook.com/phamductruong17/" target="_blank" style="color: var(--accent); text-decoration: none;">phamductruong17</a></div>
+                </div>
+
+                <button class="btn btn-secondary" style="margin-top: 10px;" id="btnCopyContact">📋 Sao chép liên hệ</button>
+              </div>
+
+              <!-- Card: App Version & OTA Update -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">🔄 CẬP NHẬT ỨNG DỤNG</span>
+                  <span class="badge badge-primary" id="badgeTab5AppVersion">v2.3.2-PRO</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                  <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+                    Hệ thống tự động đồng bộ bản vá và tính năng mới nhất từ máy chủ GitHub DTA Studio.
+                  </p>
+                  <button type="button" class="btn btn-primary" onclick="window.checkAppUpdateManual()" id="btnCheckAppUpdateTab5" style="width: 100%;">
+                    🔄 Kiểm Tra & Nâng Cấp Ngay
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Preflight Live Confirmation Modal -->
+  <div class="modal-overlay" id="preflightModal">
+    <div class="modal-box">
+      <div class="modal-title">🔴 XÁC NHẬN BẮT ĐẦU LIVE STREAM</div>
+      <div class="modal-body" id="preflightModalBody">
+        Đang kiểm tra các điều kiện an toàn preflight...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" style="width: 80px;" id="btnCancelPreflight" onclick="window.closePreflightModal()">Hủy</button>
+        <button type="button" class="btn btn-primary" style="width: 150px;" id="btnConfirmStartLive" onclick="window.confirmAndStartLive()">▶ Bắt Đầu Live ngay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Confirmation Modal (Stop Live, Delete Video, Clear Log) -->
+  <div class="modal-overlay" id="confirmActionModal">
+    <div class="modal-box">
+      <div class="modal-title" id="confirmModalTitle">XÁC NHẬN THAO TÁC</div>
+      <div class="modal-body" id="confirmModalBody">Bạn có chắc chắn muốn thực hiện thao tác này?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" style="width: 80px;" id="btnCancelAction" onclick="window.closeActionModal()">Hủy</button>
+        <button type="button" class="btn btn-danger" style="width: 120px;" id="btnExecuteAction" onclick="window.confirmExecuteAction()">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Text Data Editor Modal (Platform Info & Rules) -->
+  <div class="modal-overlay" id="dtaTextEditorModal">
+    <div class="modal-box" style="max-width: 680px; width: 90%; display: flex; flex-direction: column; max-height: 85vh;">
+      <div class="modal-title" id="dtaTextEditorTitle" style="display: flex; justify-content: space-between; align-items: center;">
+        <span>📄 CHỈNH SỬA DỮ LIỆU</span>
+        <span class="badge badge-cyan" id="dtaTextEditorBadge">&#123;&#123;Thong tin nen tang&#125;&#125;</span>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 260px;">
+        <p style="font-size: 11.5px; color: var(--text-secondary); margin: 0;" id="dtaTextEditorDesc">
+          Nội dung văn bản bên dưới sẽ được tự động nhúng vào Prompt của AI khi trả lời comment.
+        </p>
+        <textarea class="dta-input" id="dtaTextEditorContent" style="flex: 1; min-height: 240px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical;" placeholder="Nhập nội dung dữ liệu văn bản..."></textarea>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+        <div style="display: flex; gap: 6px;">
+          <input type="file" id="dtaFileInputTxt" accept=".txt" style="display: none;" onchange="window.handleImportTxtFile(event)">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('dtaFileInputTxt').click()">📁 Nhập File .txt</button>
+          <button type="button" class="btn btn-secondary" onclick="window.exportTxtFileAction()">💾 Xuất File .txt</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" class="btn btn-secondary" onclick="window.closeTextEditorModal()">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="window.saveTextEditorContentAction()">✅ Áp Dụng & Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preset Name Input Modal -->
+  <div class="modal-overlay" id="promptPresetNameModal">
+    <div class="modal-box" style="max-width: 440px; width: 90%;">
+      <div class="modal-title" id="presetNameModalTitle">➕ THÊM PRESET KỊCH BẢN</div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: var(--font-caption); color: var(--text-secondary);">Tên kịch bản preset (VD: Bán Quần Áo, Săn Hàng...):</label>
+        <input type="text" class="dta-input" id="inputPresetNameModal" placeholder="Nhập tên preset kịch bản..." style="height: 34px;">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="window.closePresetNameModal()">Hủy</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmPresetName" onclick="window.confirmPresetNameAction()">Lưu Preset</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="flv.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

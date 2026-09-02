@@ -1,0 +1,100 @@
+{
+  "name": "dta-autolive",
+  "version": "2.4.0",
+  "description": "DTA AutoLive - Professional Live Automation Studio | Developed by DTA Studio - Đức Trường AI",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node -v",
+    "pack": "electron-builder --dir -c.win.signAndEditExecutable=false -c.win.signDlls=false",
+    "dist": "electron-builder -c.win.signAndEditExecutable=false -c.win.signDlls=false",
+    "build:win": "electron-builder --win --x64 -c.win.signAndEditExecutable=false -c.win.signDlls=false",
+    "build:portable": "electron-builder --win portable -c.win.signAndEditExecutable=false -c.win.signDlls=false"
+  },
+  "build": {
+    "appId": "com.dtastudio.autolive",
+    "productName": "DTA AutoLive",
+    "copyright": "Copyright © 2026 DTA Studio - Đức Trường AI",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "electron/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "assets/**/*",
+      "drivers/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "drivers",
+        "to": "drivers",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "dist/dta_backend",
+        "to": "backend",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/logo.ico",
+      "requestedExecutionLevel": "asInvoker",
+      "signAndEditExecutable": false,
+      "signDlls": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "DTA AutoLive",
+      "installerIcon": "assets/logo.ico",
+      "uninstallerIcon": "assets/logo.ico",
+      "installerHeaderIcon": "assets/logo.ico"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "TruongAnh2706",
+      "repo": "DTA-LiveTik-Releases",
+      "private": false
+    }
+  },
+  "keywords": [
+    "dta-autolive",
+    "virtual-camera",
+    "directshow",
+    "electron",
+    "tiktok-live",
+    "sadcaptcha"
+  ],
+  "author": "DTA Studio - Đức Trường AI",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9",
+    "flv.js": "^1.6.2"
+  }
+}

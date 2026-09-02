@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "DTA AutoLive Extension Bridge",
+  "version": "1.1.0",
+  "description": "Chrome Extension Bridge kết nối DTA AutoLive v1.1 với TikTok Seller Center Live Dashboard.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.tiktok.com/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.tiktok.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}

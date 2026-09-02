@@ -1,0 +1,74 @@
+name: DTA AutoLive Build & Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      - name: Install Node Dependencies
+        run: |
+          npm install
+
+      - name: Run Quality Gate Verification
+        run: |
+          python -m ruff check .
+          python -m mypy src/
+          python -m pytest
+
+      - name: Build Standalone Python Backend Executable (PyInstaller)
+        run: |
+          pip install pyinstaller
+          pyinstaller --noconfirm --onedir --console --name dta_backend --clean --distpath dist `
+            --add-data "src/dta_autolive;dta_autolive" `
+            --add-data "drivers;drivers" `
+            --collect-all websockets `
+            --collect-all structlog `
+            --collect-all psutil `
+            --collect-all imageio_ffmpeg `
+            --collect-all cv2 `
+            --collect-all requests `
+            --collect-all PIL `
+            src/dta_autolive/launcher/backend_service.py
+
+      - name: Build & Publish Release with electron-builder
+        env:
+          GH_TOKEN: ${{ secrets.DTA_RELEASE_TOKEN }}
+        run: |
+          npx electron-builder --win --publish always
+
+      - name: Upload Build Artifacts (Backup on Actions Tab)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: DTA-AutoLive-Windows-Builds
+          path: |
+            dist/*.exe
+            dist/latest.yml
+            dist/*.blockmap

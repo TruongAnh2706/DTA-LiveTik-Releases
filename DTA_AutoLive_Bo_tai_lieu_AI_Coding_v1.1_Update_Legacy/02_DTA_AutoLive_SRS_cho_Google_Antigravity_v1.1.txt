@@ -1,0 +1,521 @@
+﻿DTA AUTOLIVE
+SOFTWARE REQUIREMENTS SPECIFICATION
+AI CODING EDITION FOR GOOGLE ANTIGRAVITY
+Version 1.1
+
+======================================================================
+1. MỤC ĐÍCH
+======================================================================
+
+Tài liệu này là nguồn yêu cầu chính thức để Google Antigravity triển khai DTA AutoLive.
+
+AI Agent phải:
+
+- Đọc toàn bộ tài liệu trước khi code.
+- Không suy diễn chức năng ngoài phạm vi.
+- Không thay đổi kiến trúc đã khóa.
+- Tạo implementation plan trước mỗi milestone.
+- Viết test cùng với code.
+- Báo cáo rõ thay đổi và kết quả xác minh.
+- Dừng và báo lỗi khi requirement mâu thuẫn.
+
+======================================================================
+2. QUY TẮC TÁC VỤ CHO AI
+======================================================================
+
+Mỗi task phải dùng mẫu:
+
+TASK-ID:
+GOAL:
+CONTEXT:
+ALLOWED FILES:
+FORBIDDEN FILES:
+FUNCTIONAL REQUIREMENTS:
+NON-FUNCTIONAL REQUIREMENTS:
+ACCEPTANCE CRITERIA:
+MANDATORY TESTS:
+ARTIFACTS:
+ROLLBACK PLAN:
+REPORT FORMAT:
+
+AI không được:
+
+- Sửa file ngoài ALLOWED FILES.
+- Đổi dependency lớn khi chưa có ADR.
+- Xóa test đang pass.
+- Tắt validation để làm test pass.
+- Hardcode token, API key hoặc đường dẫn máy cá nhân.
+- Bỏ qua error handling.
+- Tự publish release.
+- Tự merge vào main nếu workflow yêu cầu review.
+
+======================================================================
+3. ACTORS
+======================================================================
+
+ACT-001 Operator
+- Chọn video.
+- Sắp xếp playlist.
+- Gắn JSON.
+- Sửa JSON.
+- Điều khiển play/pause/seek/stop.
+- Theo dõi cảnh báo.
+- Xử lý xác minh khi cần.
+
+ACT-002 Desktop UI
+- Hiển thị trạng thái.
+- Gửi command tới Application Layer.
+- Không trực tiếp điều khiển FFmpeg process.
+
+ACT-003 Media Worker
+- Probe và decode media.
+- Xuất frame/audio.
+- Báo playback position.
+- Báo telemetry.
+- Hỗ trợ pause/seek/stop.
+
+ACT-004 Timeline Scheduler
+- Đọc Video Clock.
+- Xác định event.
+- Quản lý event state.
+- Gửi command Bridge.
+
+ACT-005 Chrome Extension
+- Kết nối localhost Bridge.
+- Nhận command.
+- Thực thi trên tab được chọn.
+- Trả acknowledgement.
+
+ACT-006 Updater
+- Check manifest.
+- Download.
+- Verify.
+- Install.
+- Rollback.
+- Restart.
+
+======================================================================
+4. FUNCTIONAL REQUIREMENTS
+======================================================================
+
+FR-001 SYSTEM STARTUP
+- Launcher phải chạy trước Main App.
+- Splash Gatekeeper phải tải và kiểm tra latest.yml từ Public Release Repository.
+- Main Dashboard phải được tạo ở trạng thái ẩn và chỉ show khi latest.yml xác nhận ứng dụng đã mới nhất.
+
+Acceptance:
+- Không có mạng và không có mandatory stale policy: hiển thị lỗi rõ.
+- Có update: bắt buộc tải và cài; không mở bản cũ.
+- Update xong: tự restart.
+
+FR-002 HARDWARE CHECK
+- App kiểm tra OS, RAM, GPU, disk.
+- Target minimum: Windows x64, 16 GB RAM, GTX 1050 4 GB.
+
+Acceptance:
+- Máy dưới chuẩn: cảnh báo.
+- Không crash nếu không đọc được GPU.
+- Disk thiếu dung lượng update: chặn update.
+
+FR-003 MEDIA IMPORT
+- Cho phép chọn một hoặc nhiều video.
+- Mỗi video phải được FFprobe kiểm tra.
+- Video không có audio bị reject.
+
+Acceptance:
+- Hiển thị lý do reject.
+- Không thêm item invalid vào runnable playlist.
+- Metadata được lưu.
+
+FR-004 PLAYLIST MANAGEMENT
+- Add, remove, reorder, enable/disable item.
+- Mỗi item gắn đúng một JSON.
+- Persist playlist.
+
+Acceptance:
+- Thứ tự sau restart được khôi phục.
+- JSON mapping không bị đổi khi reorder.
+- Missing file được đánh dấu invalid.
+
+FR-005 PLAYBACK
+- Play, pause, resume, stop, seek.
+- Chuyển video theo playlist order.
+- Loop playlist tùy chọn.
+
+Acceptance:
+- Pause đồng bộ audio/video.
+- Seek không gây deadlock.
+- Video cuối loop về đầu khi bật loop.
+- Session Clock không reset.
+
+FR-006 CLOCK MODEL
+- Video Clock reset theo từng video.
+- Session Clock tích lũy toàn phiên.
+- Scheduler dùng Video Clock.
+- Log dùng cả hai clock.
+
+Acceptance:
+- Log event có session_time_ms và video_time_ms.
+- Loop không reset session_time_ms.
+
+FR-007 JSON EDITOR
+- Chỉnh JSON trong app.
+- Syntax highlight.
+- Save.
+- Validate schema.
+- Hiển thị lỗi dòng/cột.
+
+Acceptance:
+- JSON invalid không được chạy.
+- Có dirty-state.
+- Có confirm khi chuyển item chưa lưu.
+- Auto-format không làm mất dữ liệu.
+
+FR-008 JSON PER VIDEO
+- Mỗi video dùng JSON riêng.
+- JSON chỉ active khi video tương ứng active.
+
+Acceptance:
+- Không phát event từ JSON video trước.
+- Chuyển item sẽ nạp đúng JSON.
+- JSON missing sẽ chặn item đó.
+
+FR-009 TIMELINE EVENTS
+Event state:
+- pending
+- dispatched
+- acknowledged
+- failed
+- skipped
+- expired
+
+Acceptance:
+- event_id duy nhất trong file.
+- Event không gửi lặp sau acknowledgement.
+- Event quá hạn theo policy được skipped/expired.
+
+FR-010 ONE ACTIVE PRODUCT
+- Mỗi thời điểm chỉ một product active.
+- PIN_PRODUCT mới thay thế active product cũ.
+- Có thể hỗ trợ UNPIN_CURRENT.
+
+Acceptance:
+- Không có hai active product trong state store.
+- Command conflict được serialize.
+
+FR-011 EXTENSION CONNECTION
+- WebSocket localhost.
+- Pairing token.
+- Heartbeat.
+- Auto reconnect.
+- Command acknowledgement.
+
+Acceptance:
+- Disconnect không làm dừng video.
+- UI hiện cảnh báo lớn.
+- Reconnect tự động.
+- Event backlog không spam khi reconnect.
+
+FR-012 DISCONNECT BACKLOG
+Default policy:
+- Queue giới hạn.
+- Giữ state event.
+- Khi reconnect chỉ gửi event mới nhất còn hợp lệ.
+- Event cũ đánh dấu skipped/expired.
+
+Acceptance:
+- Không gửi hàng loạt product cũ.
+- Queue không tăng vô hạn.
+- Log đủ số event bị ảnh hưởng.
+
+FR-013 VIRTUAL CAMERA
+- Detect backend.
+- Output đúng resolution/FPS.
+- Báo lỗi khi không có backend.
+
+FR-014 VIRTUAL AUDIO
+- Detect audio device.
+- Video không audio không được chạy.
+- Audio output phải đồng bộ video.
+
+FR-015 PREVIEW
+- Preview 9:16.
+- Hiển thị no signal.
+- Không block UI.
+
+FR-016 LOGGING
+Mỗi log record:
+- timestamp_utc
+- severity
+- module
+- event_code
+- session_id
+- playlist_item_id
+- session_time_ms
+- video_time_ms
+- message
+- context
+
+FR-017 DIAGNOSTIC EXPORT
+- Export config đã redact.
+- Export logs.
+- Export system info.
+- Không export secrets.
+
+FR-018 SETTINGS
+- Persist cấu hình.
+- Versioned config schema.
+- Migration khi nâng version.
+- Secrets lưu qua OS secure storage.
+
+FR-019 UPDATE
+- Public repo latest.yml.
+- Semantic version lấy từ latest.yml.
+- SHA-256 verify.
+- Signature verify nếu cấu hình.
+- Atomic replace hoặc installer.
+- Rollback.
+
+FR-020 CRASH RECOVERY
+- Ghi session snapshot.
+- Detect previous abnormal shutdown.
+- Hiển thị recovery dialog.
+- Không tự resume live action nguy hiểm mà không có user confirmation.
+
+======================================================================
+5. NON-FUNCTIONAL REQUIREMENTS
+======================================================================
+
+NFR-001 PERFORMANCE
+- UI phản hồi trong 200 ms cho thao tác thông thường.
+- Preview latency mục tiêu dưới 500 ms.
+- Scheduler accuracy mục tiêu ±1 giây.
+- Không block UI thread bởi FFmpeg I/O.
+
+NFR-002 STABILITY
+- Soak test 24 giờ.
+- Không memory leak nghiêm trọng.
+- Không tăng thread/process vô hạn.
+- Log rotation.
+
+NFR-003 SECURITY
+- WebSocket localhost only.
+- Pairing token.
+- Secret không plain text.
+- Update verify trước execute.
+- Không trust manifest thiếu HTTPS trong release chính thức.
+
+NFR-004 COMPATIBILITY
+- Windows 10/11 x64.
+- RAM 16 GB.
+- GTX 1050 4 GB baseline.
+- Chrome supported version.
+
+NFR-005 OBSERVABILITY
+- Structured logs.
+- Health status.
+- Telemetry.
+- Error code catalog.
+
+NFR-006 MAINTAINABILITY
+- Typed Python.
+- Module boundaries.
+- No circular dependencies.
+- Unit test cho domain logic.
+- JSON Schema versioning.
+
+======================================================================
+6. STATE MACHINE
+======================================================================
+
+App Session States:
+
+IDLE
+VALIDATING
+PREPARING_DEVICES
+LOADING_MEDIA
+READY
+RUNNING
+PAUSED
+SEEKING
+SWITCHING_ITEM
+RECOVERING
+STOPPING
+COMPLETED
+FAILED
+
+Rules:
+- IDLE -> VALIDATING khi Start.
+- VALIDATING -> FAILED nếu video/json/device invalid.
+- READY -> RUNNING.
+- RUNNING -> PAUSED.
+- PAUSED -> RUNNING.
+- RUNNING/PAUSED -> SEEKING.
+- SEEKING -> trạng thái trước đó.
+- RUNNING -> SWITCHING_ITEM khi video end.
+- SWITCHING_ITEM -> RUNNING khi item mới sẵn sàng.
+- Media worker crash -> RECOVERING.
+- Extension disconnect không đổi RUNNING.
+- STOP -> STOPPING -> IDLE.
+
+======================================================================
+7. JSON REQUIREMENTS
+======================================================================
+
+Minimum example:
+
+{
+  "schema_version": "1.0",
+  "script_id": "script_video_001",
+  "video_filename": "video_001.mp4",
+  "expected_duration_ms": 180000,
+  "loop_mode": "inherit_playlist",
+  "timeline_events": [
+    {
+      "event_id": "evt_001",
+      "time_ms": 15000,
+      "type": "PIN_PRODUCT",
+      "payload": {
+        "product_id": "123456"
+      },
+      "valid_for_ms": 10000,
+      "retry_policy": {
+        "max_attempts": 2,
+        "timeout_ms": 5000
+      }
+    }
+  ]
+}
+
+Validation:
+- schema_version supported.
+- event_id unique.
+- time_ms >= 0.
+- product_id non-empty.
+- event sorted.
+- expected_duration compatible.
+- unknown type rejected.
+- video_filename mismatch warning/error theo strict mode.
+
+======================================================================
+8. ACCEPTANCE SUITES
+======================================================================
+
+AS-001 Single video.
+AS-002 Multi-video playlist.
+AS-003 Playlist loop 3 rounds.
+AS-004 Pause 5 minutes then resume.
+AS-005 Seek forward.
+AS-006 Seek backward.
+AS-007 JSON invalid.
+AS-008 Video without audio.
+AS-009 Extension disconnect 2 minutes.
+AS-010 Reconnect with multiple expired events.
+AS-011 Media Worker crash.
+AS-012 Mandatory update success.
+AS-013 Update checksum failure.
+AS-014 Update rollback.
+AS-015 24-hour soak test.
+
+======================================================================
+9. DEFINITION OF DONE
+======================================================================
+
+Một task chỉ hoàn thành khi:
+
+- Code đáp ứng requirement.
+- Test mới được thêm.
+- Test cũ vẫn pass.
+- Lint/type check pass.
+- Không có secret.
+- Artifact được tạo.
+- Báo cáo file changed.
+- Báo cáo command executed.
+- Báo cáo acceptance criteria.
+- Không còn TODO blocker không được khai báo.
+
+
+======================================================================
+10. AUTO-UPDATE REQUIREMENTS — DTA STUDIO LEGACY STANDARD
+======================================================================
+
+FR-021 SPLASH GATEKEEPER
+- Splash Screen là cửa sổ duy nhất được hiển thị khi app khởi động.
+- Main Dashboard phải show=false/hidden.
+- Splash phải frameless, always-on-top và không resizable.
+- Người dùng không được đóng Splash để bỏ qua update bắt buộc.
+- Splash phải có status text và progress bar.
+
+Acceptance:
+- Không có frame chính xuất hiện phía sau Splash.
+- Không có đường tắt mở Main Dashboard trước khi update check hoàn tất.
+- Trạng thái và phần trăm tải cập nhật realtime.
+
+FR-022 LATEST.YML SOURCE OF TRUTH
+- Updater phải đọc latest.yml từ Public Release Repository.
+- latest.yml là nguồn version và package metadata chính thức.
+- Parser phải validate version, path/url, checksum và release date.
+- Dữ liệu thiếu hoặc sai schema phải được xem là update-check failure.
+
+Acceptance:
+- Fixture latest.yml hợp lệ được parse.
+- Fixture sai checksum hoặc thiếu version bị reject.
+- Client không cần GitHub token để đọc metadata.
+
+FR-023 STRICT ONLINE STARTUP
+- Strict Mode mặc định bật.
+- Khi không kết nối được Public Repo hoặc không xác minh được latest.yml, Main Dashboard không được mở.
+- Splash hiển thị thông báo yêu cầu Internet.
+- Chỉ có Retry hoặc Exit.
+- Không có Skip/Continue Offline trong v1.0.
+
+Acceptance:
+- Tắt mạng trước startup: Dashboard không xuất hiện.
+- Retry sau khi có mạng: tiếp tục kiểm tra.
+- Exit: đóng toàn bộ process sạch sẽ.
+
+FR-024 FORCE DOWNLOAD AND INSTALL
+- Khi remote version lớn hơn local version, updater tự bắt đầu download.
+- Không hỏi người dùng có muốn update hay không.
+- Không cung cấp nút Skip.
+- Progress phải phản ánh bytes downloaded.
+- Sau download và verify, updater cài đặt và restart.
+
+Acceptance:
+- Có update: Dashboard không mở.
+- Download hoàn tất: package được verify trước execute.
+- Restart mở đúng version mới.
+
+FR-025 TAG-TRIGGERED RELEASE
+- Push Git tag vX.Y.Z tại Private Repo kích hoạt workflow release.
+- Workflow phải chạy test trước build.
+- Workflow dùng DTA_RELEASE_TOKEN để publish asset sang Public Repo.
+- Workflow sinh latest.yml và checksum.
+- Token chỉ tồn tại trong GitHub Actions secrets.
+
+Acceptance:
+- Tag không đúng pattern không release.
+- Test fail thì không publish.
+- Public Repo không chứa source code.
+- Client không chứa DTA_RELEASE_TOKEN.
+
+FR-026 PYTHON IMPLEMENTATION ADAPTATION
+- DTA AutoLive dùng PySide6 nên không phụ thuộc electron-updater.
+- Phải triển khai cùng lifecycle bằng Launcher/Splash process và Updater process riêng.
+- latest.yml vẫn là contract metadata.
+- Có thể dùng GitHub Releases API hoặc raw latest.yml URL công khai.
+- Installer/package có thể là .exe installer hoặc signed archive, nhưng hành vi force-update không đổi.
+
+======================================================================
+11. UPDATE ACCEPTANCE SUITES BỔ SUNG
+======================================================================
+
+AS-016 Splash is the only visible startup window.
+AS-017 Up-to-date closes Splash then shows Dashboard.
+AS-018 New version forces download with no skip.
+AS-019 Network failure in Strict Mode blocks Dashboard.
+AS-020 Retry succeeds after network recovery.
+AS-021 Invalid latest.yml blocks startup.
+AS-022 Git tag release publishes binary and latest.yml.
+AS-023 Failed CI tests prevent publication.
+AS-024 Client contains no release token.

@@ -1,0 +1,400 @@
+﻿DTA AUTOLIVE
+TỔNG QUAN SẢN PHẨM v1.1
+Professional Live Automation Studio
+
+Đơn vị phát triển: DTA Studio
+Định hướng triển khai: AI Coding bằng Google Antigravity
+Nền tảng mục tiêu: Windows 10/11 x64
+
+======================================================================
+1. TÓM TẮT SẢN PHẨM
+======================================================================
+
+DTA AutoLive là ứng dụng desktop hỗ trợ vận hành luồng video có sẵn thông qua webcam ảo và microphone ảo, đồng thời đồng bộ các sự kiện sản phẩm theo timeline với Chrome Extension chạy trên trình duyệt thật.
+
+Sản phẩm được thiết kế theo mô hình ba tầng độc lập:
+
+1. Desktop Application
+- Giao diện người dùng.
+- Quản lý playlist.
+- Quản lý timeline JSON.
+- Điều phối phiên phát.
+- Theo dõi thiết bị và kết nối.
+- Hiển thị log và cảnh báo.
+
+2. Media & Virtual Device Layer
+- FFmpeg/FFprobe.
+- Webcam ảo.
+- Microphone ảo.
+- Media Worker độc lập.
+- Đồng hồ phát video và audio.
+- Telemetry về FPS, dropped frames, CPU, GPU và buffer.
+
+3. Chrome Extension Bridge
+- Kết nối Desktop App qua WebSocket localhost.
+- Đồng bộ với Seller Center trên trình duyệt Chrome thật.
+- Nhận lệnh sự kiện sản phẩm.
+- Trả acknowledgement và trạng thái thực thi.
+- Tự động reconnect khi mất kết nối.
+
+Mục tiêu của phiên bản 1.0 là tạo ra một ứng dụng Windows ổn định, có thể phát liên tục một hoặc nhiều video theo danh sách, đọc file JSON tương ứng với từng video, hỗ trợ pause, seek, loop và đồng bộ sự kiện theo thời gian phát thực tế.
+
+======================================================================
+2. ĐỊNH HƯỚNG AI CODING
+======================================================================
+
+Toàn bộ mã nguồn được xây dựng và duy trì bằng Google Antigravity theo mô hình Agent-First.
+
+Tài liệu dự án được viết để AI Coding Agent có thể:
+
+- Hiểu chính xác phạm vi và quy tắc nghiệp vụ.
+- Tạo implementation plan trước khi sửa mã nguồn.
+- Triển khai theo từng milestone nhỏ, có thể kiểm chứng.
+- Chạy test, kiểm tra artifact và tự xác minh kết quả.
+- Không tự ý thay đổi kiến trúc.
+- Không tự ý thêm chức năng ngoài phạm vi.
+- Không bỏ qua validation, error handling hoặc test.
+- Báo cáo rõ file đã sửa, lệnh test, kết quả và rủi ro còn lại.
+
+Mỗi tác vụ giao cho Antigravity phải có:
+
+- Task ID.
+- Mục tiêu.
+- Bối cảnh liên quan.
+- File được phép sửa.
+- File bị cấm sửa.
+- Yêu cầu chức năng.
+- Yêu cầu phi chức năng.
+- Tiêu chí nghiệm thu.
+- Lệnh test bắt buộc.
+- Artifact cần tạo.
+- Quy tắc rollback.
+- Báo cáo kết quả.
+
+======================================================================
+3. NGƯỜI DÙNG MỤC TIÊU
+======================================================================
+
+DTA AutoLive hướng tới người vận hành nội dung trên Windows cần:
+
+- Chọn video nguồn và xem preview dọc 9:16.
+- Phát video/audio qua thiết bị ảo.
+- Tạo và chỉnh sửa timeline JSON ngay trong ứng dụng.
+- Chạy một video hoặc danh sách nhiều video theo thứ tự.
+- Theo dõi trạng thái webcam, microphone và Chrome Extension.
+- Nhận cảnh báo rõ ràng khi có sự cố.
+- Cập nhật ứng dụng tự động trước khi sử dụng.
+
+======================================================================
+4. CẤU HÌNH MÁY TỐI THIỂU
+======================================================================
+
+- Hệ điều hành: Windows 10 hoặc Windows 11, 64-bit.
+- RAM: 16 GB.
+- GPU: NVIDIA GeForce GTX 1050 4 GB hoặc tương đương.
+- CPU: tối thiểu 4 nhân vật lý.
+- Ổ đĩa trống: tối thiểu 10 GB.
+- Chrome phiên bản còn được hỗ trợ.
+- TikTok Studio hoặc phần mềm nhận webcam/microphone ảo tương thích.
+
+Ứng dụng phải kiểm tra cấu hình cơ bản khi khởi động và cảnh báo nếu máy thấp hơn cấu hình mục tiêu.
+
+======================================================================
+5. PHẠM VI PHIÊN BẢN 1.0
+======================================================================
+
+5.1. Chức năng có trong v1.0
+
+- Chọn một hoặc nhiều video nguồn.
+- Chỉ hỗ trợ video có audio stream hợp lệ.
+- Reject video không có audio.
+- Preview video theo tỷ lệ 9:16.
+- Play, pause, resume, stop và seek.
+- Chạy playlist nhiều video lần lượt.
+- Mỗi video có một file JSON riêng.
+- JSON được nạp và chạy độc lập theo video hiện tại.
+- Sau video cuối, playlist có thể loop về video đầu.
+- Session timeline tiếp tục tích lũy qua các vòng loop.
+- Cho phép chỉnh JSON trực tiếp trong ứng dụng.
+- Validate JSON schema, cú pháp và nghiệp vụ.
+- Gửi sự kiện sản phẩm qua Chrome Extension.
+- Mỗi thời điểm chỉ một sản phẩm active.
+- Hiển thị log và trạng thái thiết bị.
+- Hiển thị cảnh báo lớn khi Extension mất kết nối.
+- Video vẫn tiếp tục khi Extension mất kết nối.
+- Kiểm tra update bắt buộc trước khi mở giao diện chính.
+
+5.2. Ngoài phạm vi v1.0
+
+- Video không có âm thanh.
+- Chạy nhiều phiên live độc lập cùng lúc.
+- Multi-account song song.
+- Proxy profile.
+- Điều khiển cloud.
+- Mobile app.
+- Speech-to-text tự động tạo timeline.
+- Tự động xử lý challenge/Captcha không có sự giám sát của người dùng.
+
+======================================================================
+6. LUỒNG HOẠT ĐỘNG CHÍNH
+======================================================================
+
+1. App Launcher khởi động.
+2. Launcher đọc local version.
+3. Splash Gatekeeper tải metadata latest.yml từ Public Release Repository.
+4. Nếu latest.yml báo có bản mới:
+   - Chặn mở app chính.
+   - Tải update.
+   - Verify SHA-256 và chữ ký nếu có.
+   - Cài đặt theo cơ chế atomic/staging.
+   - Restart phiên bản mới.
+5. Nếu app đã mới nhất:
+   - Mở giao diện chính.
+6. Người dùng chọn một hoặc nhiều video có audio.
+7. Người dùng gắn một JSON riêng cho từng video.
+8. Người dùng có thể sửa JSON trực tiếp trong app.
+9. Hệ thống validate:
+   - Video.
+   - Audio.
+   - JSON.
+   - Webcam ảo.
+   - Microphone ảo.
+   - Extension Bridge.
+10. Media Worker phát video và audio.
+11. Scheduler đọc playback position thực tế.
+12. Scheduler phát event đúng thời điểm.
+13. Extension nhận command và trả acknowledgement.
+14. Video kết thúc thì chuyển item tiếp theo.
+15. Playlist kết thúc thì loop nếu được bật.
+16. Session Clock tiếp tục tăng, không reset khi loop.
+
+======================================================================
+7. QUY TẮC PLAYLIST VÀ TIMELINE
+======================================================================
+
+Mỗi PlaylistItem gồm tối thiểu:
+
+- item_id.
+- video_path.
+- json_path.
+- title.
+- duration_ms.
+- has_audio.
+- validation_status.
+- order_index.
+- enabled.
+- last_error.
+
+Hai loại đồng hồ:
+
+1. Video Clock
+- Bắt đầu từ 0 cho mỗi video.
+- Dùng để xác định event của JSON tương ứng.
+- Reset khi chuyển sang video mới.
+
+2. Session Clock
+- Tính từ khi phiên bắt đầu.
+- Không reset khi chuyển video.
+- Không reset khi playlist loop.
+- Dùng cho log, thống kê, telemetry và lịch sử phiên.
+
+Seek:
+
+- Khi seek, Media Worker cập nhật vị trí.
+- Scheduler tính lại event pending.
+- Event đã acknowledged không chạy lại mặc định.
+- Có thể có tùy chọn replay events after seek trong phiên bản sau.
+- Seek không được làm audio/video mất đồng bộ nghiêm trọng.
+
+Pause:
+
+- Video và audio cùng pause.
+- Video Clock dừng.
+- Session Clock có thể tiếp tục ghi thời gian thực hoặc ghi riêng paused duration.
+- Event không được phát khi đang pause.
+
+======================================================================
+8. HÀNH VI KHI EXTENSION MẤT KẾT NỐI
+======================================================================
+
+- Không dừng video.
+- Không dừng audio.
+- Hiển thị cảnh báo đỏ lớn và luôn nổi.
+- Ghi log mức ERROR hoặc CRITICAL tùy thời gian mất kết nối.
+- Bridge tự reconnect bằng exponential backoff.
+- Event tới hạn được đưa vào queue có giới hạn.
+- Khi reconnect:
+  - Không được gửi hàng loạt event cũ.
+  - Chỉ gửi event hợp lệ mới nhất theo chính sách backlog.
+  - Event cũ được đánh dấu skipped hoặc expired.
+- Một thời điểm chỉ một sản phẩm active.
+- Ghi thời gian disconnect, reconnect và số event bị ảnh hưởng.
+
+======================================================================
+9. CẤU TRÚC GIAO DIỆN
+======================================================================
+
+Sidebar khóa cứng 5 mục:
+
+1. Quản lý Live & Preview.
+2. Kịch bản Timeline.
+3. Xử lý Luồng Video.
+4. Xác minh & Tích hợp.
+5. Nhật ký & Thông tin.
+
+Tab 1:
+- Preview 9:16.
+- Playlist.
+- Play/Pause/Resume/Stop.
+- Seek bar.
+- Video Clock.
+- Session Clock.
+- Trạng thái webcam.
+- Trạng thái microphone.
+- Trạng thái Extension.
+- Cảnh báo lớn.
+- Log nhanh.
+
+Tab 2:
+- Tải JSON mẫu.
+- Xem hướng dẫn.
+- Nạp JSON.
+- Code editor.
+- Syntax highlighting.
+- Validation panel.
+- Liên kết video–JSON.
+- Event table.
+
+Tab 3:
+- Scale/crop/pad.
+- FPS.
+- Bitrate.
+- Audio normalize.
+- Hardware acceleration.
+- Media test.
+- Không mô tả tính năng theo hướng vượt hệ thống phát hiện của nền tảng.
+
+Tab 4:
+- Quản lý integration.
+- Secret storage an toàn.
+- Kiểm tra kết nối.
+- User-assisted verification.
+
+Tab 5:
+- Full system logs.
+- Search/filter.
+- Export diagnostic package.
+- Version.
+- Release notes.
+- Copyright.
+
+======================================================================
+10. KIẾN TRÚC REPOSITORY VÀ UPDATE
+======================================================================
+
+Repository 1 — Private Source Repository
+
+- Chứa source code.
+- Chứa test.
+- Chứa build script.
+- Chứa tài liệu AI coding.
+- Chứa workflow nội bộ.
+- Không được app người dùng truy cập trực tiếp.
+- Không lưu secret trong git.
+- Không lưu signing private key trong repo.
+
+Repository 2 — Public Release Repository
+
+- Chứa release manifest.
+- Chứa changelog.
+- Chứa installer/package.
+- Chứa checksum.
+- Có thể chứa signature public.
+- Không chứa private source code.
+
+Metadata latest.yml tối thiểu:
+
+version: 1.0.1
+files:
+  - url: DTA-AutoLive-Setup-1.0.1.exe
+    sha512: BASE64_SHA512_VALUE
+    size: 0
+path: DTA-AutoLive-Setup-1.0.1.exe
+sha512: BASE64_SHA512_VALUE
+releaseDate: 2026-07-27T00:00:00.000Z
+releaseNotes: |
+  Nội dung thay đổi của phiên bản.
+
+Quy tắc:
+
+- App phải check version trước khi mở main window.
+- Nếu mandatory update có sẵn, bản cũ không được mở.
+- Update phải tải về staging.
+- Verify trước khi chạy.
+- Có rollback khi lỗi.
+- Restart tự động sau update.
+- Không cập nhật trực tiếp từ private repo.
+
+======================================================================
+11. TIÊU CHÍ THÀNH CÔNG v1.0
+======================================================================
+
+- Chạy được trên Windows 10/11 x64.
+- Chạy được trên máy 16 GB RAM và GTX 1050 4 GB.
+- Reject video không có audio.
+- Chạy playlist video có audio liên tục tối thiểu 24 giờ.
+- Pause/resume/seek hoạt động ổn định.
+- JSON đúng được nạp theo từng video.
+- Session Clock không reset khi loop.
+- Extension disconnect không làm dừng media.
+- Cảnh báo disconnect rõ ràng.
+- Một thời điểm chỉ có một sản phẩm active.
+- Update bắt buộc hoạt động và có rollback.
+- Test bắt buộc pass trước khi release.
+
+======================================================================
+12. KẾT LUẬN
+======================================================================
+
+DTA AutoLive v1.0 là ứng dụng desktop điều phối media, playlist, timeline và Chrome Extension theo kiến trúc tách lớp. Tài liệu này là mô tả sản phẩm cấp cao. Các yêu cầu chi tiết nằm trong SRS, tài liệu kiến trúc và roadmap AI Coding đi kèm.
+
+
+======================================================================
+13. CHUẨN AUTO-UPDATE DTA STUDIO ĐƯỢC ÁP DỤNG
+======================================================================
+
+Hệ thống update của DTA AutoLive phải kế thừa chuẩn OTA cũ của DTA Studio:
+
+1. Splash Screen Interception
+- Splash Screen là cửa sổ đầu tiên xuất hiện.
+- Main Dashboard được tạo ở trạng thái ẩn và tuyệt đối không hiển thị trước khi kiểm tra update hoàn tất.
+- Splash frameless, always-on-top, không cho bỏ qua bản cập nhật bắt buộc.
+- Hiển thị trạng thái: khởi tạo, kiểm tra, phát hiện bản mới, phần trăm tải, đang cài đặt, sẵn sàng hoặc lỗi mạng.
+
+2. Metadata chuẩn
+- Public Release Repository dùng latest.yml làm nguồn version chính thức.
+- Không dùng manifest tự thiết kế làm nguồn mặc định nếu không có lý do kỹ thuật được phê duyệt.
+- latest.yml phải chứa version, package path, checksum, kích thước, ngày phát hành và release notes.
+- Với Python/PySide6, có thể sinh latest.yml tương thích nội bộ nhưng phải giữ nguyên vai trò và lifecycle của hệ thống cũ.
+
+3. Strict Mode
+- DTA AutoLive v1.0 mặc định bật Strict Mode.
+- Nếu không thể xác thực latest.yml, Main Dashboard không được mở.
+- Splash hiển thị “Yêu cầu kết nối Internet để khởi động ứng dụng”.
+- Chỉ cho phép “Thử lại” hoặc “Thoát”.
+- Không có nút “Bỏ qua”.
+
+4. CI/CD theo Git Tag
+- Private Repo chứa source, workflow và DTA_RELEASE_TOKEN.
+- Push tag dạng vX.Y.Z kích hoạt GitHub Actions.
+- Workflow build Windows package, tạo checksum/latest.yml và publish sang Public Release Repo.
+- Client chỉ đọc Public Repo, không dùng token.
+
+5. Update lifecycle
+- Download progress phải cập nhật realtime trên Splash.
+- Tải xong phải đóng tiến trình chính, cài đặt đè bằng updater process riêng và tự restart.
+- Update lỗi trước khi cài thì không được chạy package chưa xác minh.
+- Update lỗi trong khi cài phải rollback hoặc giữ bản cũ nguyên vẹn.
+- Main Dashboard chỉ show sau sự kiện UP_TO_DATE hoặc sau khi bản mới restart thành công.
+
+Tài liệu DTA_AutoUpdate_System_Spec.md là nguồn chuẩn ưu tiên cho module updater. Khi có xung đột với mô tả update cũ trong tài liệu này, chuẩn Splash Gatekeeper + latest.yml + Git Tag CI/CD được ưu tiên.

@@ -1,0 +1,59 @@
+;
+; DTA Studio - DTA Camera AVStream WDM Virtual Camera Driver INF Package
+; Hardware ID: Root\DTA_Camera
+;
+
+[Version]
+Signature="$CHICAGO$"
+Class=Camera
+ClassGuid={ca3e7044-db67-4672-b465-4584056ad142}
+Provider=%VendorName%
+CatalogFile=dta_camera.cat
+DriverVer=07/27/2026,1.1.0.0
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir=12
+DTACamera.DriverFiles=12
+
+[SourceDisksNames]
+1 = %DiskName%,,,
+
+[SourceDisksFiles]
+dta_camera.sys = 1
+
+[Manufacturer]
+%VendorName%=DTAStudioDevice,NTamd64
+
+[DTAStudioDevice.NTamd64]
+%DTACamera.DeviceDesc%=DTACamera.Inst, Root\DTA_Camera
+
+[DTACamera.Inst]
+Include=ks.inf, kscamtst.inf
+Needs=KS.Registration, KSCamera.Registration
+CopyFiles=DTACamera.DriverFiles
+AddReg=DTACamera.AddReg
+
+[DTACamera.Inst.Services]
+AddService=DTACamera,0x00000002,DTACamera.ServiceInstall
+
+[DTACamera.DriverFiles]
+dta_camera.sys
+
+[DTACamera.AddReg]
+HKR,,FriendlyName,,%DTACamera.DeviceDesc%
+HKR,,DeviceCharacteristics,0x00010001,0x0100
+HKR,,CameraFormat,0x00010001,0x0000
+
+[DTACamera.ServiceInstall]
+DisplayName=%DTACamera.ServiceDesc%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\dta_camera.sys
+
+[Strings]
+VendorName="DTA Studio"
+DiskName="DTA Camera Installation Disk"
+DTACamera.DeviceDesc="DTA Camera"
+DTACamera.ServiceDesc="DTA Camera AVStream Virtual Device Driver"

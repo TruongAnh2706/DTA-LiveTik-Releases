@@ -1,0 +1,57 @@
+;
+; DTA Studio - DTA Audio WaveRT Virtual Audio Driver INF Package
+; Hardware ID: Root\DTA_Audio
+;
+
+[Version]
+Signature="$CHICAGO$"
+Class=MEDIA
+ClassGuid={4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider=%VendorName%
+CatalogFile=dta_audio.cat
+DriverVer=07/27/2026,1.1.0.0
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir=12
+DTAAudio.DriverFiles=12
+
+[SourceDisksNames]
+1 = %DiskName%,,,
+
+[SourceDisksFiles]
+dta_audio.sys = 1
+
+[Manufacturer]
+%VendorName%=DTAStudioDevice,NTamd64
+
+[DTAStudioDevice.NTamd64]
+%DTAAudio.DeviceDesc%=DTAAudio.Inst, Root\DTA_Audio
+
+[DTAAudio.Inst]
+Include=ks.inf, wdmaudio.inf
+Needs=KS.Registration, WDMAUDIO.Registration
+CopyFiles=DTAAudio.DriverFiles
+AddReg=DTAAudio.AddReg
+
+[DTAAudio.Inst.Services]
+AddService=DTAAudio,0x00000002,DTAAudio.ServiceInstall
+
+[DTAAudio.DriverFiles]
+dta_audio.sys
+
+[DTAAudio.AddReg]
+HKR,,FriendlyName,,%DTAAudio.DeviceDesc%
+
+[DTAAudio.ServiceInstall]
+DisplayName=%DTAAudio.ServiceDesc%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\dta_audio.sys
+
+[Strings]
+VendorName="DTA Studio"
+DiskName="DTA Audio Installation Disk"
+DTAAudio.DeviceDesc="DTA Audio"
+DTAAudio.ServiceDesc="DTA Audio WaveRT Virtual Device Driver"

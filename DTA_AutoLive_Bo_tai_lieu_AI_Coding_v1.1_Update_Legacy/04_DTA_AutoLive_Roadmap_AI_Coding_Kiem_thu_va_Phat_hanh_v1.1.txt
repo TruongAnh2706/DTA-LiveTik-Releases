@@ -1,0 +1,569 @@
+﻿DTA AUTOLIVE
+ROADMAP AI CODING, TESTING & RELEASE
+Version 1.1
+
+======================================================================
+1. NGUYÊN TẮC TRIỂN KHAI
+======================================================================
+
+- Triển khai theo milestone nhỏ.
+- Mỗi milestone có branch riêng.
+- Antigravity phải lập plan trước khi code.
+- Không xây UI hoàn chỉnh trước khi media/bridge POC hoạt động.
+- Không release nếu thiếu test.
+- Không thay đổi kiến trúc mà không có ADR.
+- Mỗi milestone phải tạo artifact kiểm chứng.
+
+======================================================================
+2. WORKFLOW CHUẨN CHO ANTIGRAVITY
+======================================================================
+
+1. Read:
+   - Product Overview.
+   - SRS.
+   - Architecture.
+   - ADR liên quan.
+2. Inspect current repository.
+3. Generate implementation plan.
+4. Xác định file được sửa.
+5. Tạo hoặc cập nhật test trước/song song code.
+6. Implement.
+7. Run:
+   - format
+   - lint
+   - type check
+   - unit test
+   - integration test liên quan
+8. Verify artifact.
+9. Produce change report.
+10. Commit theo conventional commits.
+11. Không merge/publish nếu chưa được yêu cầu.
+
+Report format:
+
+TASK:
+SUMMARY:
+FILES CHANGED:
+TESTS ADDED:
+COMMANDS RUN:
+RESULTS:
+ACCEPTANCE CRITERIA:
+RISKS:
+FOLLOW-UP:
+
+======================================================================
+3. MILESTONE 0 — REPOSITORY FOUNDATION
+======================================================================
+
+Mục tiêu:
+- Tạo repo structure.
+- pyproject.toml.
+- CI cơ bản.
+- ruff.
+- pyright/mypy.
+- pytest.
+- logging skeleton.
+- docs/ADR.
+- AGENTS.md.
+
+Acceptance:
+- Fresh clone cài được.
+- lint/type/test pass.
+- Không có secret.
+- Có command một dòng chạy quality gate.
+
+Artifact:
+- CI run.
+- test report.
+- architecture tree.
+
+======================================================================
+4. MILESTONE 1 — DOMAIN CORE
+======================================================================
+
+Mục tiêu:
+- Domain models.
+- Session state machine.
+- Playlist model.
+- Two-clock model.
+- Timeline event state.
+- Backlog policy.
+- One active product invariant.
+
+Không cần UI/FFmpeg.
+
+Acceptance:
+- Unit coverage cao cho domain.
+- Seek/loop scenarios pass.
+- State transition invalid bị reject.
+
+Artifact:
+- State transition diagram.
+- Unit test report.
+
+======================================================================
+5. MILESTONE 2 — MEDIA PROOF OF CONCEPT
+======================================================================
+
+Mục tiêu:
+- FFprobe validation.
+- Reject no-audio video.
+- FFmpeg decode.
+- Preview frame pipeline.
+- Audio pipeline.
+- Position telemetry.
+- Pause/resume/seek.
+
+Acceptance:
+- Chạy được trên baseline machine.
+- Video không audio bị reject.
+- Seek không treo.
+- Position event đều.
+- Worker process isolation.
+
+Artifact:
+- Demo executable.
+- telemetry log.
+- benchmark report.
+
+======================================================================
+6. MILESTONE 3 — VIRTUAL DEVICE POC
+======================================================================
+
+Mục tiêu:
+- Virtual camera adapter.
+- Virtual audio adapter.
+- Device detection.
+- Error reporting.
+
+Acceptance:
+- Camera xuất được frame.
+- Audio xuất được.
+- App detect missing device.
+- Không crash khi device bị chiếm.
+
+Artifact:
+- Device compatibility report.
+- Setup guide.
+
+======================================================================
+7. MILESTONE 4 — BRIDGE POC
+======================================================================
+
+Mục tiêu:
+- Localhost WebSocket.
+- Extension handshake.
+- Pairing token.
+- Heartbeat.
+- PIN_PRODUCT mock command.
+- Ack.
+- Reconnect.
+
+Acceptance:
+- Disconnect/reconnect pass.
+- Duplicate message idempotent.
+- Command timeout hoạt động.
+- Localhost-only verified.
+
+Artifact:
+- Protocol trace.
+- Extension package dev.
+- Integration tests.
+
+======================================================================
+8. MILESTONE 5 — PLAYLIST + JSON ENGINE
+======================================================================
+
+Mục tiêu:
+- Playlist CRUD.
+- One JSON per video.
+- JSON editor backend.
+- Schema validation.
+- Timeline scheduler.
+- Multi-video sequential playback.
+- Playlist loop.
+- Session Clock accumulation.
+
+Acceptance:
+- 3 video chạy lần lượt.
+- JSON đúng video.
+- 3 vòng loop.
+- Session Clock không reset.
+- Event không lẫn giữa video.
+
+Artifact:
+- E2E logs.
+- playlist fixture.
+- JSON fixtures.
+
+======================================================================
+9. MILESTONE 6 — DESKTOP UI
+======================================================================
+
+Mục tiêu:
+- PySide6 shell.
+- Fixed sidebar 5 tabs.
+- Preview 9:16.
+- Playlist panel.
+- Playback controls.
+- Seek bar.
+- JSON editor.
+- Status cards.
+- Large disconnect warning.
+- Logs.
+
+Acceptance:
+- UI không block.
+- State-based button enable/disable.
+- Warning rõ ràng.
+- JSON dirty-state.
+- Responsive ở độ phân giải mục tiêu.
+
+Artifact:
+- Screenshots.
+- UI smoke tests.
+- interaction demo.
+
+======================================================================
+10. MILESTONE 7 — UPDATER
+======================================================================
+
+Mục tiêu:
+- Launcher.
+- latest.yml parser/generator.
+- Semantic version from latest.yml.
+- Download staging.
+- SHA-256.
+- Signature optional/required config.
+- Atomic install.
+- Rollback.
+- Restart.
+
+Acceptance:
+- Splash Gatekeeper chặn Main Dashboard.
+- Success update.
+- Checksum fail không install.
+- Install fail rollback.
+- Interrupted update recovery.
+
+Artifact:
+- Test release.
+- update logs.
+- rollback proof.
+
+======================================================================
+11. MILESTONE 8 — INTEGRATION & RECOVERY
+======================================================================
+
+Mục tiêu:
+- Crash recovery.
+- Worker restart.
+- Session snapshot.
+- Diagnostics export.
+- Log rotation.
+- Config migration.
+
+Acceptance:
+- Kill Worker và recover.
+- App abnormal shutdown detect.
+- Diagnostic export không có secret.
+- Config cũ migrate.
+
+======================================================================
+12. MILESTONE 9 — SOAK & PERFORMANCE
+======================================================================
+
+Test baseline:
+- Windows 10/11 x64.
+- RAM 16 GB.
+- GTX 1050 4 GB.
+
+Scenarios:
+- 24-hour playlist.
+- 3–10 video.
+- Repeated loop.
+- Pause/resume.
+- Seek.
+- Extension disconnect nhiều lần.
+- Worker restart.
+- Log rotation.
+- Update check.
+
+Measure:
+- RAM.
+- CPU.
+- GPU.
+- dropped frames.
+- audio buffer.
+- event timing error.
+- reconnect time.
+- disk growth.
+
+Release blocker:
+- Memory tăng không kiểm soát.
+- Event duplicate.
+- Audio/video drift nghiêm trọng.
+- App freeze.
+- Update rollback fail.
+
+======================================================================
+13. MILESTONE 10 — RELEASE CANDIDATE
+======================================================================
+
+Checklist:
+- All acceptance suites pass.
+- Installer signed nếu có.
+- Public repo release và latest.yml prepared.
+- Manifest valid.
+- SHA-256 valid.
+- Changelog.
+- Known issues.
+- User guide.
+- Recovery guide.
+- Uninstall tested.
+
+Release channels:
+- dev
+- beta
+- stable
+
+Không để beta auto-update lên stable nếu channel không khớp.
+
+======================================================================
+14. GITHUB TWO-REPO WORKFLOW
+======================================================================
+
+Private Repo branches:
+- main
+- develop
+- feature/*
+- fix/*
+- release/*
+
+Public Repo:
+- releases only.
+- latest.yml per release/channel.
+- binaries.
+- changelog.
+
+Pipeline:
+1. Tag private repo.
+2. Run full tests.
+3. Build.
+4. Scan.
+5. Sign.
+6. Generate checksum.
+7. Publish public release.
+8. Generate/publish latest.yml cuối cùng.
+9. Verify download from public.
+10. Mark release active.
+
+Secret rules:
+- GitHub Actions secrets.
+- Least privilege token.
+- Public repo token chỉ có quyền release cần thiết.
+- Không echo secret.
+- Không upload private source artifact.
+
+======================================================================
+15. TEST MATRIX TỐI THIỂU
+======================================================================
+
+T01 Valid video with audio.
+T02 Video without audio.
+T03 Corrupt video.
+T04 One video + one JSON.
+T05 Three videos + three JSON.
+T06 Missing JSON.
+T07 Invalid JSON syntax.
+T08 Duplicate event_id.
+T09 Pause.
+T10 Resume.
+T11 Seek forward.
+T12 Seek backward.
+T13 Loop playlist.
+T14 Session Clock persistence.
+T15 Extension disconnect.
+T16 Reconnect.
+T17 Backlog expiry.
+T18 One active product.
+T19 Worker crash.
+T20 Missing virtual camera.
+T21 Missing virtual audio.
+T22 Splash Gatekeeper + mandatory update.
+T23 latest.yml/checksum mismatch.
+T24 Rollback.
+T25 24-hour soak.
+
+======================================================================
+16. PROMPT TEMPLATE CHO ANTIGRAVITY
+======================================================================
+
+You are implementing one scoped task in DTA AutoLive.
+
+Read these files first:
+- docs/product/...
+- docs/srs/...
+- docs/architecture/...
+- relevant ADR files
+- AGENTS.md
+
+Do not modify files outside ALLOWED FILES.
+Do not change architecture.
+Do not add unrequested dependencies.
+Do not remove validation or tests.
+
+TASK ID:
+GOAL:
+CONTEXT:
+ALLOWED FILES:
+FORBIDDEN FILES:
+FUNCTIONAL REQUIREMENTS:
+NON-FUNCTIONAL REQUIREMENTS:
+ACCEPTANCE CRITERIA:
+MANDATORY TESTS:
+ARTIFACTS:
+
+Before coding:
+1. Inspect the repository.
+2. Produce a concise implementation plan.
+3. Identify risks and assumptions.
+4. Verify that requirements do not conflict.
+
+After coding:
+1. Run formatter, linter, type checker and tests.
+2. Provide files changed.
+3. Provide commands and results.
+4. Map results to every acceptance criterion.
+5. Report remaining risks.
+6. Do not publish or merge.
+
+======================================================================
+17. DEFINITION OF RELEASE READY
+======================================================================
+
+- Product requirements locked.
+- SRS requirements traceable.
+- Architecture contracts implemented.
+- All critical tests pass.
+- 24-hour soak pass.
+- Baseline hardware pass.
+- Update success/failure/rollback pass.
+- No known critical security issue.
+- No secret in repository/package.
+- Documentation included.
+
+
+======================================================================
+18. ROADMAP UPDATE MODULE THEO HỆ THỐNG CŨ
+======================================================================
+
+MILESTONE U0 — LEGACY SPEC LOCK
+- Đưa DTA_AutoUpdate_System_Spec.md vào docs/architecture.
+- Tạo ADR về Splash Gatekeeper, latest.yml, Strict Mode và Git Tag.
+- Viết parser fixtures cho latest.yml.
+
+MILESTONE U1 — SPLASH UI
+- PySide6 frameless Splash.
+- always-on-top.
+- Progress bar.
+- Status text tiếng Việt.
+- Retry/Exit error state.
+- Main Dashboard hidden.
+
+MILESTONE U2 — UPDATE CHECK
+- Fetch latest.yml từ Public Repo.
+- Timeout/retry.
+- Semantic version compare.
+- Strict Mode.
+- Không token client-side.
+
+MILESTONE U3 — DOWNLOADER
+- Stream download.
+- Progress realtime.
+- Temporary staging.
+- Resume tùy chọn.
+- Verify SHA-512.
+- Reject invalid package.
+
+MILESTONE U4 — INSTALLER/UPDATER PROCESS
+- DTAUpdater.exe process riêng.
+- Stop app.
+- Backup.
+- Install/replace.
+- Health check.
+- Restart.
+- Rollback.
+
+MILESTONE U5 — CI/CD
+- Private Repo tag v*.
+- Test gate.
+- Build Windows installer.
+- Generate latest.yml.
+- Publish Public Repo bằng DTA_RELEASE_TOKEN.
+- Verify release assets.
+
+MILESTONE U6 — FAILURE TESTING
+- No Internet.
+- 404 latest.yml.
+- Invalid YAML.
+- Wrong checksum.
+- Interrupted download.
+- Installer fail.
+- Power/process interruption simulation.
+- Rollback.
+- Retry after network restored.
+
+======================================================================
+19. UPDATE TEST MATRIX BỔ SUNG
+======================================================================
+
+U01 Splash appears before Dashboard.
+U02 Dashboard remains hidden during check.
+U03 Up-to-date opens Dashboard.
+U04 New version auto-downloads.
+U05 No Skip button.
+U06 Download progress is realtime.
+U07 SHA-512 success.
+U08 SHA-512 mismatch.
+U09 Strict Mode network failure.
+U10 Retry after reconnect.
+U11 Exit closes all processes.
+U12 Installer success and restart.
+U13 Installer failure and rollback.
+U14 Interrupted update recovery.
+U15 Tag v1.0.1 triggers pipeline.
+U16 Non-version tag does not publish.
+U17 CI test failure blocks release.
+U18 Public Repo contains binary/latest.yml only.
+U19 Client binary contains no DTA_RELEASE_TOKEN.
+U20 Public release can be checked without authentication.
+
+======================================================================
+20. ANTIGRAVITY TASK PROMPT — UPDATE MODULE
+======================================================================
+
+You are implementing the DTA AutoLive updater by adapting the existing
+DTA Studio legacy specification.
+
+Authoritative requirements:
+- Splash Screen is the startup gatekeeper.
+- Main Dashboard must remain hidden until version verification succeeds.
+- Public Release Repository exposes latest.yml and release binaries.
+- Private Source Repository publishes through a v* Git tag workflow.
+- DTA_RELEASE_TOKEN exists only in GitHub Actions secrets.
+- Strict Mode blocks startup when update verification cannot complete.
+- Updates are mandatory and cannot be skipped.
+- Download progress must be visible in real time.
+- A separate updater process installs, restarts and rolls back.
+- Preserve SHA-512 compatibility with the legacy updater.
+- Adapt implementation to Python/PySide6; do not introduce Electron.
+
+Required output:
+- implementation plan
+- files changed
+- tests
+- generated latest.yml fixture
+- GitHub Actions workflow
+- installer/updater artifact
+- evidence that Main Dashboard never appears before update clearance

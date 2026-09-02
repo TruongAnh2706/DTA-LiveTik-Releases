@@ -1,0 +1,2 @@
+[console_scripts]
+dta-autolive = dta_autolive.launcher.main:main

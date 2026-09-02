@@ -1,0 +1,30 @@
+# 🚀 DTA AutoLive v1.1 - Professional Live Automation Studio
+
+**Phát triển bởi DTA Studio - Chủ quản: Đức Trường**  
+- **Email:** ductruong.onl@gmail.com
+- **Zalo/SĐT:** 0962.775.506
+- **Website:** [https://dta-studio.vercel.app/](https://dta-studio.vercel.app/)
+
+---
+
+## 📌 GIỚI THIỆU
+DTA AutoLive là ứng dụng desktop hỗ trợ vận hành luồng video có sẵn thông qua Webcam ảo và Microphone ảo, đồng thời đồng bộ hóa các sự kiện sản phẩm (JSON timeline) theo thời gian thực tới trình duyệt Chrome thật thông qua WebSocket Extension Bridge.
+
+---
+
+## 🏗️ KIẾN TRÚC MÔ HÌNH 3 TẦNG
+1. **Desktop Presentation Layer (PySide6 GUI):** Quản lý phiên live, playlist, kịch bản JSON editor và theo dõi hệ thống.
+2. **Media & Virtual Device Layer:** FFmpeg/FFprobe decode video/audio qua tiến trình độc lập (Process Isolation) và xuất ra thiết bị ảo.
+3. **Chrome Extension Bridge:** Kết nối WebSocket Localhost với Seller Center trên Chrome thật để tự động ghim sản phẩm.
+
+---
+
+## 🛡️ HỆ THỐNG CẬP NHẬT TỰ ĐỘNG (SPLASH GATEKEEPER)
+Ứng dụng áp dụng chuẩn **Strict Online Startup Mode** của DTA Studio: Màn hình Splash Screen mở đầu tiên để tải `latest.yml` từ Public Release Repo và ép buộc cập nhật bản mới trước khi cho phép mở Main Dashboard.
+
+---
+
+## 🛠️ YÊU CẦU MÔI TRƯỜNG & PHÁT TRIỂN
+- **OS:** Windows 10/11 64-bit
+- **Python:** 3.11+
+- **Chạy kiểm tra chất lượng:** `ruff check . && mypy src/ && pytest`
