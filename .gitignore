@@ -52,9 +52,16 @@ recordings/*.flv
 scratch/
 .system_generated/
 crop_*.png
-BAO_CAO_TONG_HOP_YEU_CAU_BACKUP.txt
+# User Data & Sensitive Cookies
+data/*.json
+!data/*.example.json
+
+# Diagnostics Reports
+diagnostics/*.json
+diagnostics/*.txt
 
 # OS Specific
 .DS_Store
 Thumbs.db
 desktop.ini
+
